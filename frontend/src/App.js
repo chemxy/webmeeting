@@ -1,7 +1,11 @@
 import logo from './logo.svg';
 import './App.css';
+import {useRef} from "react";
 
 function App() {
+
+    const videoRef = useRef(null);
+
     // Put variables in global scope to make them available to the browser console.
     const constraints = window.constraints = {
         audio: false,
@@ -9,7 +13,8 @@ function App() {
     };
 
     function handleSuccess(stream) {
-        const video = document.querySelector('video');
+        // const video = document.querySelector('video');
+        const video = videoRef.current;
         const videoTracks = stream.getVideoTracks();
         console.log('Got stream with constraints:', constraints);
         console.log(`Using video device: ${videoTracks[0].label}`);
@@ -40,6 +45,7 @@ function App() {
     async function init(e) {
         try {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            console.log(stream);
             handleSuccess(stream);
             e.target.disabled = true;
         } catch (e) {
@@ -53,7 +59,7 @@ function App() {
                 <h1><a href="//webrtc.github.io/samples/" title="WebRTC samples homepage">WebRTC samples</a>
                     <span>getUserMedia</span></h1>
 
-                <video id="gum-local" autoplay playsinline></video>
+                <video id="gum-local" autoplay playsinline ref={videoRef}></video>
                 <button id="showVideo" onClick={(e) => init(e)}>Open camera</button>
 
                 <div id="errorMsg"></div>
