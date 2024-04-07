@@ -59,12 +59,12 @@ function App() {
                 <h1><a href="//webrtc.github.io/samples/" title="WebRTC samples homepage">WebRTC samples</a>
                     <span>getUserMedia</span></h1>
 
-                <video id="gum-local" autoplay playsinline ref={videoRef}></video>
+                <video id="gum-local" autoPlay playsInline ref={videoRef}></video>
                 <button id="showVideo" onClick={(e) => init(e)}>Open camera</button>
 
                 <div id="errorMsg"></div>
 
-                <p class="warning"><strong>Warning:</strong> if you're not using headphones, pressing play will cause
+                <p className="warning"><strong>Warning:</strong> if you're not using headphones, pressing play will cause
                     feedback.</p>
 
                 <p>Display the video stream from <code>getUserMedia()</code> in a video element.</p>
