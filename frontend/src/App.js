@@ -4,7 +4,7 @@ import {useRef} from "react";
 
 function App() {
 
-    const videoRef = useRef(null);
+    // const videoRef = useRef(null);
 
     // Put variables in global scope to make them available to the browser console.
     const constraints = window.constraints = {
@@ -13,8 +13,8 @@ function App() {
     };
 
     function handleSuccess(stream) {
-        // const video = document.querySelector('video');
-        const video = videoRef.current;
+        const video = document.querySelector('video');
+        // const video = videoRef.current;
         const videoTracks = stream.getVideoTracks();
         console.log('Got stream with constraints:', constraints);
         console.log(`Using video device: ${videoTracks[0].label}`);
@@ -59,7 +59,7 @@ function App() {
                 <h1><a href="//webrtc.github.io/samples/" title="WebRTC samples homepage">WebRTC samples</a>
                     <span>getUserMedia</span></h1>
 
-                <video id="gum-local" autoPlay playsInline ref={videoRef}></video>
+                <video id="gum-local" autoPlay playsInline></video>
                 <button id="showVideo" onClick={(e) => init(e)}>Open camera</button>
 
                 <div id="errorMsg"></div>
