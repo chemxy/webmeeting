@@ -1,5 +1,8 @@
 import {useRef, useState} from "react";
 import './css/DirectCallPage.css';
+import io from "socket.io-client"
+
+const socket = io.connect('http://localhost:5000')
 
 export default function DirectCallPage() {
 
@@ -26,6 +29,9 @@ export default function DirectCallPage() {
 
     function makeNewCall() {
         console.log("making a new call");
+        socket.on("me", (id) => {
+            setCallerId(id)
+        })
         setNewCall(false);
     }
 
