@@ -67,8 +67,8 @@ export default function DirectCallPage() {
 
     if (isNewCall) {
         return (
-            <div className="col">
-                <div className="row">
+            <div className="col input-call-id">
+                <div className="row ">
                     <label htmlFor="">ID</label>
                     <input type="text"/>
                 </div>

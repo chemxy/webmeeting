@@ -1,3 +1,7 @@
 .camera-wrapper{
     border: black solid 1px;
 }
+
+.input-call-id{
+    width: 20%;
+}
