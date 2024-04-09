@@ -10,7 +10,7 @@ export default function Navbar() {
                         <Link to="/" className="text-capitalize nav-link">home</Link>
                     </li>
                     <li className="nav-item">
-                        <Link to="/" className="text-capitalize nav-link">call</Link>
+                        <Link to="/call" className="text-capitalize nav-link">call</Link>
                     </li>
                 </ul>
             </nav>
