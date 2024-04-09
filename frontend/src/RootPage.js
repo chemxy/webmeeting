@@ -3,15 +3,18 @@ import Navbar from "./components/Navbar";
 
 export default function RootPage() {
     return (
-        <div className="container">
-            <div className="flex-row">
-                <div className="navbar-wrapper">
-                    <Navbar></Navbar>
+        <div className="">
+            <div className="row">
+                <div className="col-1">
+                    <div className="navbar-wrapper">
+                        <Navbar></Navbar>
+                    </div>
                 </div>
-                <div className="content">
-                    <Outlet></Outlet>
+                <div className="col-11">
+                    <div className="content">
+                        <Outlet></Outlet>
+                    </div>
                 </div>
-
             </div>
         </div>
     )
