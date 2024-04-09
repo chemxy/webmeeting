@@ -9,6 +9,9 @@ export default function DirectCallPage() {
     const myVideo = useRef(null);
     const otherVideo = useRef(null);
     const [localStream, setLocalStream] = useState(null);
+
+    const [connection, setConnetion] = useState(null);
+
     const [callStatus, setCallStatus] = useState("new"); //new, incoming, calling, on, end,
     const [myId, setMyId] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
@@ -53,7 +56,7 @@ export default function DirectCallPage() {
         return new RTCPeerConnection(config);
     }
 
-    async function openCamera(peerConnection) {
+    async function openCamera() {
         try {
             const constraints = {
                 audio: true,
@@ -61,11 +64,12 @@ export default function DirectCallPage() {
             };
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
             console.log(stream);
-            setLocalStream(stream);
-            myVideo.current.srcObject = localStream;
+            myVideo.current.srcObject = stream;
+            stream.getTracks().forEach(track => connection.addTrack(track, stream));
             setCameraOpen(true);
-            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            setLocalStream(stream);
         } catch (error) {
+            console.log(error);
             setErrorMessage(`getUserMedia error: ${error.name}`, error);
         }
     }
@@ -81,7 +85,7 @@ export default function DirectCallPage() {
         // Create peer connection
         let peerConnection = createPeerConnection();
 
-        // peerConnection.ontrack = e => otherVideo.current.srcObject = e.streams[0];
+        peerConnection.ontrack = e => otherVideo.current.srcObject = e.streams[0];
 
         // Get media stream
         // const localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: true})
@@ -95,6 +99,7 @@ export default function DirectCallPage() {
         console.log(offer);
         await peerConnection.setLocalDescription(offer);
         console.log(peerConnection);
+        setConnetion(peerConnection);
 
         // Send offer to the other peer
         socket.emit("callUser", {
@@ -110,7 +115,6 @@ export default function DirectCallPage() {
 
         setCallStatus("calling");
 
-
         //wait for the other peer to accept the call
         socket.on("callAccepted", (signal) => {
             setCallStatus("on");
@@ -118,6 +122,7 @@ export default function DirectCallPage() {
             // myVideo.current.srcObject = localStream;
             console.log(signal);
             peerConnection.setRemoteDescription(signal);
+            setConnetion(peerConnection);
         })
     }
 
@@ -126,6 +131,7 @@ export default function DirectCallPage() {
 
         let peerConnection = createPeerConnection();
 
+        peerConnection.ontrack = e => otherVideo.current.srcObject = e.streams[0];
 
         await peerConnection.setRemoteDescription(call.signal);
 
@@ -139,13 +145,11 @@ export default function DirectCallPage() {
 
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
-
+        setConnetion(peerConnection);
         console.log(answer);
         socket.emit("answerCall", {signal: answer, to: call.from})
 
         setCallStatus("on");
-
-        // peerConnection.ontrack = e => otherVideo.current.srcObject = e.streams[0];
 
         // openCamera();
     }
@@ -194,7 +198,7 @@ export default function DirectCallPage() {
                             </div>
                         </div>
 
-                        {/*<button disabled={isCameraOpen} onClick={(e) => openCamera(e)}>Open camera</button>*/}
+                        <button disabled={isCameraOpen} onClick={(e) => openCamera(e)}>Open camera</button>
 
                         <div>{errorMessage}</div>
                     </div>
