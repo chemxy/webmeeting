@@ -7,6 +7,7 @@ export default function DirectCallPage() {
     const [isNewCall, setNewCall] = useState(true);
     const [callerId, setCallerId] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [isLive, setLive] = useState(false);
 
     async function initVideo() {
         try {
@@ -17,6 +18,7 @@ export default function DirectCallPage() {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
             console.log(stream);
             videoRef.current.srcObject = stream;
+            setLive(true);
         } catch (error) {
             setErrorMessage(`getUserMedia error: ${error.name}`, error);
         }
@@ -49,7 +51,7 @@ export default function DirectCallPage() {
             <div>
                 <div className="camera-wrapper">
                     <video id="gum-local" autoPlay playsInline ref={videoRef}></video>
-                    <button id="showVideo" onClick={(e) => initVideo(e)}>Open camera</button>
+                    <button id="showVideo" disabled={isLive} onClick={(e) => initVideo(e)}>Open camera</button>
 
                     <div id="errorMsg">{errorMessage}</div>
                 </div>
