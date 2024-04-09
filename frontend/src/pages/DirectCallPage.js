@@ -53,7 +53,9 @@ export default function DirectCallPage() {
                 {urls: "stun:stun.l.google.com:19302"} // Using Google's public STUN server
             ]
         };
-        return new RTCPeerConnection(config);
+        const peerConnection = new RTCPeerConnection(config)
+        peerConnection.ontrack = e => otherVideo.current.srcObject = e.streams[0];
+        return peerConnection;
     }
 
     async function openCamera() {
@@ -85,7 +87,7 @@ export default function DirectCallPage() {
         // Create peer connection
         let peerConnection = createPeerConnection();
 
-        peerConnection.ontrack = e => otherVideo.current.srcObject = e.streams[0];
+        // peerConnection.ontrack = e => otherVideo.current.srcObject = e.streams[0];
 
         // Get media stream
         // const localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: true})
@@ -130,8 +132,6 @@ export default function DirectCallPage() {
         setCallStatus("accepted");
 
         let peerConnection = createPeerConnection();
-
-        peerConnection.ontrack = e => otherVideo.current.srcObject = e.streams[0];
 
         await peerConnection.setRemoteDescription(call.signal);
 
@@ -198,7 +198,7 @@ export default function DirectCallPage() {
                             </div>
                         </div>
 
-                        <button disabled={isCameraOpen} onClick={(e) => openCamera(e)}>Open camera</button>
+                        <button disabled={isCameraOpen} onClick={openCamera}>Open camera</button>
 
                         <div>{errorMessage}</div>
                     </div>
