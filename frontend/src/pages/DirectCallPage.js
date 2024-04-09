@@ -1,32 +1,14 @@
 import {useRef, useState} from "react";
 import './css/DirectCallPage.css';
-import {useNavigate} from "react-router-dom";
 
 export default function DirectCallPage() {
 
     const videoRef = useRef(null);
     const [isNewCall, setNewCall] = useState(true);
     const [callerId, setCallerId] = useState("");
-    const [stream, setStream] = useState();
     const [errorMessage, setErrorMessage] = useState("");
 
-    function setUserVideo(stream) {
-        setStream(stream);
-        videoRef.current.srcObject = stream;
-    }
-
-    function handleError(error) {
-        if (error.name === 'OverconstrainedError') {
-            setErrorMessage(`The resolution is not supported by your device.`);
-        } else if (error.name === 'NotAllowedError') {
-            setErrorMessage('Permissions have not been granted to use your camera and ' +
-                'microphone, you need to allow the page access to your devices in ' +
-                'order for the demo to work.');
-        }
-        setErrorMessage(`getUserMedia error: ${error.name}`, error);
-    }
-
-    async function initVideo(event) {
+    async function initVideo() {
         try {
             const constraints = {
                 audio: true,
@@ -34,10 +16,9 @@ export default function DirectCallPage() {
             };
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
             console.log(stream);
-            setUserVideo(stream);
-            event.target.disabled = true;
-        } catch (err) {
-            handleError(err);
+            videoRef.current.srcObject = stream;
+        } catch (error) {
+            setErrorMessage(`getUserMedia error: ${error.name}`, error);
         }
     }
 
