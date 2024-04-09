@@ -1,4 +1,4 @@
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import './css/DirectCallPage.css';
 import io from "socket.io-client"
 
@@ -6,13 +6,37 @@ const socket = io.connect('http://localhost:5000')
 
 export default function DirectCallPage() {
 
-    const videoRef = useRef(null);
-    const [isNewCall, setNewCall] = useState(true);
-    const [callerId, setCallerId] = useState("");
+    const myVideo = useRef(null);
+    const [callStatus, setCallStatus] = useState("new"); //new, incoming, accepted, on, end,
+    const [myId, setMyId] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const [isLive, setLive] = useState(false);
+    const [isCameraOpen, setCameraOpen] = useState(false);
 
-    async function initVideo() {
+    const [call, setCall] = useState({
+        name: "",
+        from: "",
+        signal: ""
+    })
+
+    useEffect(() => {
+        //get my session id
+        socket.on("me", (id) => {
+            setMyId(id);
+        });
+
+        //wait for a call
+        socket.on("callUser", (data) => {
+            setCallStatus("incoming");
+            setCall({
+                name: data.name,
+                from: data.from,
+                signal: data.signal
+            });
+        });
+
+    }, [])
+
+    async function openCamera() {
         try {
             const constraints = {
                 audio: true,
@@ -20,35 +44,40 @@ export default function DirectCallPage() {
             };
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
             console.log(stream);
-            videoRef.current.srcObject = stream;
-            setLive(true);
+            myVideo.current.srcObject = stream;
+            setCameraOpen(true);
         } catch (error) {
             setErrorMessage(`getUserMedia error: ${error.name}`, error);
         }
     }
 
-    function makeNewCall() {
+    function callUser() {
         console.log("making a new call");
-        socket.on("me", (id) => {
-            setCallerId(id)
-        })
-        setNewCall(false);
+
+        setCallStatus(false);
+    }
+
+    function acceptCall() {
+
     }
 
     function hangUpCall() {
         console.log("hanging up a call");
-        setNewCall(true);
+        setCallStatus(true);
     }
 
-    if (isNewCall) {
+    if (callStatus) {
         return (
             <div className="col input-call-id">
+                <div>
+                    {myId}
+                </div>
                 <div className="row ">
                     <label htmlFor="">ID</label>
                     <input type="text"/>
                 </div>
                 <div className="row">
-                    <button onClick={makeNewCall} className="text-capitalize">call</button>
+                    <button onClick={callUser} className="text-capitalize">call</button>
                 </div>
             </div>
         );
@@ -56,10 +85,10 @@ export default function DirectCallPage() {
         return (
             <div>
                 <div className="camera-wrapper">
-                    <video id="gum-local" autoPlay playsInline ref={videoRef}></video>
-                    <button id="showVideo" disabled={isLive} onClick={(e) => initVideo(e)}>Open camera</button>
+                    <video autoPlay playsInline ref={myVideo}></video>
+                    <button disabled={isCameraOpen} onClick={(e) => openCamera(e)}>Open camera</button>
 
-                    <div id="errorMsg">{errorMessage}</div>
+                    <div>{errorMessage}</div>
                 </div>
                 <div>
                     <button onClick={hangUpCall} className="text-capitalize">end call</button>
