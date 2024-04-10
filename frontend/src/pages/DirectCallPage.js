@@ -87,7 +87,11 @@ export default function DirectCallPage() {
         // Create peer connection
         let peerConnection = createPeerConnection();
 
-        // peerConnection.ontrack = e => setRemoteStream(e.streams[0]);
+        peerConnection.onicecandidate = event => {
+            if (event.candidate) {
+                socket.emit('ice-candidate', {to: toUser, candidate: event.candidate});
+            }
+        };
 
         // Get local media stream
         const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
@@ -120,6 +124,9 @@ export default function DirectCallPage() {
         setCallStatus("calling");
         // setLocalStream(stream);
 
+        socket.on('ice-candidate', async (data) => {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+        });
 
         //wait for the other peer to accept the call
         socket.on("callAccepted", (data) => {
@@ -140,6 +147,12 @@ export default function DirectCallPage() {
 
         let peerConnection = createPeerConnection();
 
+        peerConnection.onicecandidate = event => {
+            if (event.candidate) {
+                socket.emit('ice-candidate', {to: call.from, candidate: event.candidate});
+            }
+        };
+
         // console.log(call.offer);
         await peerConnection.setRemoteDescription(call.offer);
 
@@ -156,7 +169,11 @@ export default function DirectCallPage() {
         // setConnetion(peerConnection);
         console.log("creating answer");
         console.log(answer);
-        socket.emit("answerCall", {answer: answer, to: call.from})
+        socket.emit("answerCall", {answer: answer, to: call.from});
+
+        socket.on('ice-candidate', async (data) => {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+        });
 
         setCallStatus("on");
         // openCamera();

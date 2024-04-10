@@ -27,6 +27,13 @@ io.on("connection", (socket) => {
         console.log(data);
         io.to(data.to).emit("callAccepted", {answer: data.answer})
     })
+
+    socket.on('ice-candidate', candidate => {
+        console.log("Forward ICE candidate to the other peer")
+        console.log(candidate.to);
+        console.log(candidate);
+        socket.to(candidate.to).emit('ice-candidate', candidate);
+    });
 })
 
 server.listen(5000, () => console.log("server is running on port 5000"))
