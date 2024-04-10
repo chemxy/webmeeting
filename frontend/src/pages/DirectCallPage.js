@@ -101,6 +101,10 @@ export default function DirectCallPage() {
         stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
         localStream.current = stream;
 
+        socket.on('ice-candidate', async (data) => {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+        });
+
         // Create offer
         const offer = await peerConnection.createOffer();
         console.log("creating offer");
@@ -123,10 +127,6 @@ export default function DirectCallPage() {
 
         setCallStatus("calling");
         // setLocalStream(stream);
-
-        socket.on('ice-candidate', async (data) => {
-            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-        });
 
         //wait for the other peer to accept the call
         socket.on("callAccepted", (data) => {
@@ -164,6 +164,10 @@ export default function DirectCallPage() {
         stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
         localStream.current = stream;
 
+        socket.on('ice-candidate', async (data) => {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+        });
+
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
         // setConnetion(peerConnection);
@@ -171,9 +175,7 @@ export default function DirectCallPage() {
         console.log(answer);
         socket.emit("answerCall", {answer: answer, to: call.from});
 
-        socket.on('ice-candidate', async (data) => {
-            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-        });
+
 
         setCallStatus("on");
         // openCamera();
