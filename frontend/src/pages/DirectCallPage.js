@@ -97,6 +97,8 @@ export default function DirectCallPage() {
                 message.candidate = event.candidate.candidate;
                 message.sdpMid = event.candidate.sdpMid;
                 message.sdpMLineIndex = event.candidate.sdpMLineIndex;
+                // console.log("found candidate");
+                // console.log(event.candidate);
                 socket.emit('ice-candidate', {to: toUser, message: message});
             }
         };
@@ -118,18 +120,20 @@ export default function DirectCallPage() {
         // setConnetion(peerConnection);
 
         socket.on('ice-candidate', async (data) => {
+            // console.log("adding candidate");
+            // console.log(data);
             await peerConnection.addIceCandidate(data.message);
         });
 
         // Send offer to the other peer
         socket.emit("callUser", {
             userToCall: toUser,
-            offer: peerConnection.localDescription,
+            offer: offer,
             from: myId,
         })
         setCall({
             from: myId,
-            offer: peerConnection.localDescription,
+            offer: offer,
             to: toUser,
         })
 
@@ -163,6 +167,8 @@ export default function DirectCallPage() {
                 message.candidate = event.candidate.candidate;
                 message.sdpMid = event.candidate.sdpMid;
                 message.sdpMLineIndex = event.candidate.sdpMLineIndex;
+                // console.log("found candidate");
+                // console.log(event.candidate);
                 socket.emit('ice-candidate', {to: call.from, message: message});
             }
         };
@@ -182,6 +188,8 @@ export default function DirectCallPage() {
         await peerConnection.setLocalDescription(answer);
 
         socket.on('ice-candidate', async (data) => {
+            // console.log("adding candidate");
+            // console.log(data);
             await peerConnection.addIceCandidate(data.message);
         });
 
