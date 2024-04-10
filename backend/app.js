@@ -17,21 +17,21 @@ io.on("connection", (socket) => {
     })
 
     socket.on("callUser", (data) => {
-        console.log("calling a user");
-        console.log(data);
+        console.log("calling a user " + data.userToCall);
+        // console.log(data);
         io.to(data.userToCall).emit("receiveCall", {offer: data.offer, from: data.from})
     })
 
     socket.on("answerCall", (data) => {
-        console.log("answering a call");
-        console.log(data);
+        console.log("answering a call to " + data.to);
+        // console.log(data);
         io.to(data.to).emit("callAccepted", {answer: data.answer})
     })
 
     socket.on('ice-candidate', data => {
-        console.log("Forward ICE candidate to the other peer")
-        console.log(data.to);
-        console.log(data);
+        console.log("Forward ICE candidate to " + data.to)
+        // console.log(data.to);
+        // console.log(data);
         socket.to(data.to).emit('ice-candidate', data.message);
     });
 })
