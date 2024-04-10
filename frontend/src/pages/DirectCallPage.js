@@ -10,6 +10,8 @@ export default function DirectCallPage() {
     const remoteVideo = useRef(null);
     const localStream = useRef(null);
     const remoteStream = useRef(null);
+    const connection = useRef(null);
+    // const iceCandidate = useRef(null);
     // const [localStream, setLocalStream] = useState(null);
     // const [remoteStream, setRemoteStream] = useState(null);
 
@@ -33,15 +35,26 @@ export default function DirectCallPage() {
         });
 
         //wait for a call
-        socket.on("receiveCall", (data) => {
-            console.log(`receiving a call from`);
-            console.log(data.offer);
+        socket.on("receiveCall",async (data) => {
+            console.log(`receiving a call from ${data.from}`);
+            // console.log(data.offer);
             setCall({
                 from: data.from,
                 offer: data.offer,
                 to: myId
             });
-            console.log(call);
+            // console.log(call);
+            connection.current = createPeerConnection();
+            // console.log(call.offer);
+            console.log("setting remote desc");
+            await connection.current.setRemoteDescription(data.offer);
+
+
+            socket.on('ice-candidate', async (data) => {
+                console.log("adding candidate")
+                await connection.current.addIceCandidate(new RTCIceCandidate(data));
+            });
+            
             setCallStatus("incoming");
         });
 
@@ -91,12 +104,15 @@ export default function DirectCallPage() {
         let peerConnection = createPeerConnection();
 
         peerConnection.onicecandidate = event => {
+            console.log("onicecandidate")
             if (event.candidate) {
+                console.log("sending candidate from caller to " + toUser)
                 socket.emit('ice-candidate', {to: toUser, message: event.candidate});
             }
         };
 
         socket.on('ice-candidate', async (data) => {
+            console.log("adding candidate")
             await peerConnection.addIceCandidate(new RTCIceCandidate(data));
         });
 
@@ -109,12 +125,9 @@ export default function DirectCallPage() {
         localStream.current = stream;
 
         // Create offer
-        const offer = await peerConnection.createOffer();
         console.log("creating offer");
+        const offer = await peerConnection.createOffer();
         console.log(offer);
-        await peerConnection.setLocalDescription(offer);
-        console.log(peerConnection);
-        // setConnetion(peerConnection);
 
         // Send offer to the other peer
         socket.emit("callUser", {
@@ -122,6 +135,10 @@ export default function DirectCallPage() {
             offer: offer,
             from: myId,
         })
+
+        console.log("setting local desc");
+        await peerConnection.setLocalDescription(offer);
+        // console.log(peerConnection);
 
         setCallStatus("calling");
         // setLocalStream(stream);
@@ -133,6 +150,7 @@ export default function DirectCallPage() {
             // myVideo.current.srcObject = localStream;
             console.log("accepting call")
             console.log(data.answer);
+            console.log("setting remote desc");
             peerConnection.setRemoteDescription(data.answer);
 
             // setConnetion(peerConnection);
@@ -149,43 +167,37 @@ export default function DirectCallPage() {
     async function answerCall() {
         // setCallStatus("accepted");
 
-        let peerConnection = createPeerConnection();
+        // let peerConnection = createPeerConnection();
 
-        peerConnection.onicecandidate = event => {
-            const message = {
-                candidate: null,
-            };
+        connection.current.onicecandidate = event => {
+            console.log("onicecandidate")
             if (event.candidate) {
+                console.log("sending candidate from receiver to " + call.from)
                 socket.emit('ice-candidate', {to: call.from, message: event.candidate});
             }
         };
 
-        socket.on('ice-candidate', async (data) => {
-            await peerConnection.addIceCandidate(new RTCIceCandidate(data));
-        });
-
-        // console.log(call.offer);
-        await peerConnection.setRemoteDescription(call.offer);
 
         // Get local media stream
         const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
         console.log("local stream");
         console.log(stream);
         console.log(stream.getTracks());
-        stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+        stream.getTracks().forEach(track => connection.current.addTrack(track, stream));
         localStream.current = stream;
 
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        console.log(peerConnection);
-
-        // setConnetion(peerConnection);
         console.log("creating answer");
+        const answer = await connection.current.createAnswer();
         console.log(answer);
+
+        console.log("setting local desc");
+        await connection.current.setLocalDescription(answer);
+        console.log(connection.current);
+
+        console.log("sending answer");
         socket.emit("answerCall", {answer: answer, to: call.from});
-        
+
         setCallStatus("on");
-        // openCamera();
     }
 
     function hangUpCall() {
@@ -222,6 +234,7 @@ export default function DirectCallPage() {
         case "on":
             return (
                 <div>
+                    <div>I am {myId}</div>
                     <div className="camera-wrapper">
                         <div className="flex-row">
                             <div className="video-wrapper">
