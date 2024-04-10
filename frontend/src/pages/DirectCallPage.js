@@ -55,6 +55,7 @@ export default function DirectCallPage() {
             ]
         };
         const peerConnection = new RTCPeerConnection(config);
+
         peerConnection.ontrack = async (e) => {
             console.log("remote stream");
             console.log(e);
@@ -63,6 +64,7 @@ export default function DirectCallPage() {
             console.log(remoteStream.current);
             console.log(remoteStream.current.getTracks());
         };
+
         return peerConnection;
     }
 
@@ -88,8 +90,15 @@ export default function DirectCallPage() {
         let peerConnection = createPeerConnection();
 
         peerConnection.onicecandidate = event => {
+            const message = {
+                type: 'candidate',
+                candidate: null,
+            };
             if (event.candidate) {
-                socket.emit('ice-candidate', {to: toUser, candidate: event.candidate});
+                message.candidate = event.candidate.candidate;
+                message.sdpMid = event.candidate.sdpMid;
+                message.sdpMLineIndex = event.candidate.sdpMLineIndex;
+                socket.emit('ice-candidate', {to: toUser, message: message});
             }
         };
 
@@ -110,7 +119,7 @@ export default function DirectCallPage() {
         // setConnetion(peerConnection);
 
         socket.on('ice-candidate', async (data) => {
-            await peerConnection.addIceCandidate(data.candidate);
+            await peerConnection.addIceCandidate(data.message);
         });
 
         // Send offer to the other peer
@@ -148,8 +157,15 @@ export default function DirectCallPage() {
         let peerConnection = createPeerConnection();
 
         peerConnection.onicecandidate = event => {
+            const message = {
+                type: 'candidate',
+                candidate: null,
+            };
             if (event.candidate) {
-                socket.emit('ice-candidate', {to: call.from, candidate: event.candidate});
+                message.candidate = event.candidate.candidate;
+                message.sdpMid = event.candidate.sdpMid;
+                message.sdpMLineIndex = event.candidate.sdpMLineIndex;
+                socket.emit('ice-candidate', {to: call.from, message: message});
             }
         };
 
@@ -168,7 +184,7 @@ export default function DirectCallPage() {
         await peerConnection.setLocalDescription(answer);
 
         socket.on('ice-candidate', async (data) => {
-            await peerConnection.addIceCandidate(JSON.parse(data.candidate));
+            await peerConnection.addIceCandidate(data.message);
         });
 
         // setConnetion(peerConnection);

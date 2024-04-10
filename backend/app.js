@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
         console.log("Forward ICE candidate to the other peer")
         console.log(data.to);
         console.log(data);
-        socket.to(data.to).emit('ice-candidate', {candidate: data.candidate});
+        socket.to(data.to).emit('ice-candidate', {message: data.message});
     });
 })
 
