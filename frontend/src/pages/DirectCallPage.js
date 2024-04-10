@@ -91,7 +91,6 @@ export default function DirectCallPage() {
 
         peerConnection.onicecandidate = event => {
             const message = {
-                type: 'candidate',
                 candidate: null,
             };
             if (event.candidate) {
@@ -158,7 +157,6 @@ export default function DirectCallPage() {
 
         peerConnection.onicecandidate = event => {
             const message = {
-                type: 'candidate',
                 candidate: null,
             };
             if (event.candidate) {
