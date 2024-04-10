@@ -41,6 +41,7 @@ export default function DirectCallPage() {
                 offer: data.offer,
                 to: myId
             });
+            console.log(call);
             setCallStatus("incoming");
         });
 
@@ -54,7 +55,7 @@ export default function DirectCallPage() {
                 {urls: "stun:stun.l.google.com:19302"} // Using Google's public STUN server
             ]
         };
-        const peerConnection = new RTCPeerConnection(config);
+        const peerConnection = new RTCPeerConnection();
 
         peerConnection.ontrack = async (e) => {
             console.log("remote stream");
@@ -90,18 +91,14 @@ export default function DirectCallPage() {
         let peerConnection = createPeerConnection();
 
         peerConnection.onicecandidate = event => {
-            const message = {
-                candidate: null,
-            };
             if (event.candidate) {
-                message.candidate = event.candidate.candidate;
-                message.sdpMid = event.candidate.sdpMid;
-                message.sdpMLineIndex = event.candidate.sdpMLineIndex;
-                // console.log("found candidate");
-                // console.log(event.candidate);
-                socket.emit('ice-candidate', {to: toUser, message: message});
+                socket.emit('ice-candidate', {to: toUser, message: event.candidate});
             }
         };
+
+        socket.on('ice-candidate', async (data) => {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(data));
+        });
 
         // Get local media stream
         const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
@@ -118,12 +115,6 @@ export default function DirectCallPage() {
         await peerConnection.setLocalDescription(offer);
         console.log(peerConnection);
         // setConnetion(peerConnection);
-
-        socket.on('ice-candidate', async (data) => {
-            // console.log("adding candidate");
-            // console.log(data);
-            await peerConnection.addIceCandidate(data.message);
-        });
 
         // Send offer to the other peer
         socket.emit("callUser", {
@@ -164,14 +155,13 @@ export default function DirectCallPage() {
                 candidate: null,
             };
             if (event.candidate) {
-                message.candidate = event.candidate.candidate;
-                message.sdpMid = event.candidate.sdpMid;
-                message.sdpMLineIndex = event.candidate.sdpMLineIndex;
-                // console.log("found candidate");
-                // console.log(event.candidate);
-                socket.emit('ice-candidate', {to: call.from, message: message});
+                socket.emit('ice-candidate', {to: call.from, message: event.candidate});
             }
         };
+
+        socket.on('ice-candidate', async (data) => {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(data));
+        });
 
         // console.log(call.offer);
         await peerConnection.setRemoteDescription(call.offer);
@@ -187,11 +177,6 @@ export default function DirectCallPage() {
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
 
-        socket.on('ice-candidate', async (data) => {
-            // console.log("adding candidate");
-            // console.log(data);
-            await peerConnection.addIceCandidate(data.message);
-        });
 
         // setConnetion(peerConnection);
         console.log("creating answer");
