@@ -95,13 +95,14 @@ export default function DirectCallPage() {
         console.log(stream);
         console.log(stream.getTracks());
         stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+        localStream.current = stream;
 
         // Create offer
         const offer = await peerConnection.createOffer();
         console.log("creating offer");
         console.log(offer);
         await peerConnection.setLocalDescription(offer);
-        // console.log(peerConnection);
+        console.log(peerConnection);
         // setConnetion(peerConnection);
 
         // Send offer to the other peer
@@ -118,7 +119,7 @@ export default function DirectCallPage() {
 
         setCallStatus("calling");
         // setLocalStream(stream);
-        localStream.current = stream;
+
 
         //wait for the other peer to accept the call
         socket.on("callAccepted", (data) => {
