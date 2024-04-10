@@ -19,9 +19,8 @@ export default function DirectCallPage() {
     const [isCameraOpen, setCameraOpen] = useState(false);
 
     const [call, setCall] = useState({
-        name: "",
         from: "",
-        signal: "",
+        offer: "",
         to: "",
     })
 
@@ -32,14 +31,13 @@ export default function DirectCallPage() {
         });
 
         //wait for a call
-        socket.on("callUser", (data) => {
+        socket.on("receiveCall", (data) => {
             console.log(`receiving a call from`);
-            console.log(data.signal);
+            console.log(data.offer);
             setCall({
-                ...call,
-                name: data.name,
                 from: data.from,
-                signal: data.signal
+                offer: data.offer,
+                to: myId
             });
             setCallStatus("incoming");
         });
@@ -117,12 +115,12 @@ export default function DirectCallPage() {
         // Send offer to the other peer
         socket.emit("callUser", {
             userToCall: toUser,
-            signalData: peerConnection.localDescription,
+            offer: peerConnection.localDescription,
             from: myId,
-            name: call.name
         })
         setCall({
-            ...call,
+            from: myId,
+            offer: peerConnection.localDescription,
             to: toUser,
         })
 
@@ -130,22 +128,24 @@ export default function DirectCallPage() {
         setLocalStream(stream);
 
         //wait for the other peer to accept the call
-        socket.on("callAccepted", (signal) => {
-            setCallStatus("on");
+        socket.on("callAccepted", (data) => {
+
             // openCamera(peerConnection);
             // myVideo.current.srcObject = localStream;
-            console.log(signal);
-            peerConnection.setRemoteDescription(signal);
+            console.log(data);
+            peerConnection.setRemoteDescription(data.answer);
             // setConnetion(peerConnection);
+            setCallStatus("on");
         })
     }
 
-    async function acceptCall() {
+    async function answerCall() {
         // setCallStatus("accepted");
 
         let peerConnection = createPeerConnection();
 
-        await peerConnection.setRemoteDescription(call.signal);
+        console.log(call.offer);
+        await peerConnection.setRemoteDescription(call.offer);
 
         // Get local media stream
         const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true})
@@ -157,7 +157,7 @@ export default function DirectCallPage() {
         await peerConnection.setLocalDescription(answer);
         // setConnetion(peerConnection);
         console.log(answer);
-        socket.emit("answerCall", {signal: answer, to: call.from})
+        socket.emit("answerCall", {answer: answer, to: call.from})
 
         setCallStatus("on");
         // openCamera();
@@ -223,7 +223,7 @@ export default function DirectCallPage() {
                         receiving incoming call from: {call.from}
                     </div>
                     <div>
-                        <button onClick={acceptCall}>Answer</button>
+                        <button onClick={answerCall}>Answer</button>
                     </div>
                 </div>
             )
