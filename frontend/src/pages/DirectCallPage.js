@@ -168,9 +168,9 @@ export default function DirectCallPage() {
         await peerConnection.setLocalDescription(answer);
 
         socket.on('ice-candidate', async (data) => {
-            await peerConnection.addIceCandidate(data.candidate);
+            await peerConnection.addIceCandidate(JSON.parse(data.candidate));
         });
-        
+
         // setConnetion(peerConnection);
         console.log("creating answer");
         console.log(answer);
