@@ -177,14 +177,13 @@ export default function DirectCallPage() {
 
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
-
+        console.log(peerConnection);
 
         // setConnetion(peerConnection);
         console.log("creating answer");
         console.log(answer);
         socket.emit("answerCall", {answer: answer, to: call.from});
-
-
+        
         setCallStatus("on");
         // openCamera();
     }
