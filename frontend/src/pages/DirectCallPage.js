@@ -55,13 +55,13 @@ export default function DirectCallPage() {
             ]
         };
         const peerConnection = new RTCPeerConnection(config);
-        peerConnection.ontrack = (e) => {
+        peerConnection.ontrack = async (e) => {
+            console.log("remote stream");
             console.log(e);
-            // if (!remoteVideo.current)
-            //     remoteVideo.current = new MediaStream();
-            // remoteVideo.current.srcObject = e.streams[0];
             // setRemoteStream(e.streams[0]);
             remoteStream.current = e.streams[0];
+            console.log(remoteStream.current);
+            console.log(remoteStream.current.getTracks());
         };
         return peerConnection;
     }
@@ -70,7 +70,9 @@ export default function DirectCallPage() {
         myVideo.current.srcObject = localStream.current;
         remoteVideo.current.srcObject = remoteStream.current;
         console.log(myVideo.current.srcObject);
+        console.log(myVideo.current.srcObject.getTracks());
         console.log(remoteVideo.current.srcObject);
+        console.log(remoteVideo.current.srcObject.getTracks());
         setCameraOpen(true);
     }
 
@@ -88,10 +90,12 @@ export default function DirectCallPage() {
         // peerConnection.ontrack = e => setRemoteStream(e.streams[0]);
 
         // Get local media stream
-        const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true})
-        // console.log(stream);
+        const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+        console.log("local stream");
+        console.log(stream);
+        console.log(stream.getTracks());
         stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
-        
+
         // Create offer
         const offer = await peerConnection.createOffer();
         console.log("creating offer");
@@ -139,8 +143,10 @@ export default function DirectCallPage() {
         await peerConnection.setRemoteDescription(call.offer);
 
         // Get local media stream
-        const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true})
-        // console.log(stream);
+        const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+        console.log("local stream");
+        console.log(stream);
+        console.log(stream.getTracks());
         stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
         localStream.current = stream;
 
