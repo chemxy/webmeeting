@@ -55,7 +55,7 @@ export default function DirectCallPage() {
                 {urls: "stun:stun.l.google.com:19302"} // Using Google's public STUN server
             ]
         };
-        const peerConnection = new RTCPeerConnection();
+        const peerConnection = new RTCPeerConnection(config);
 
         peerConnection.ontrack = async (e) => {
             console.log("remote stream");
@@ -96,9 +96,9 @@ export default function DirectCallPage() {
             }
         };
 
-        // socket.on('ice-candidate', async (data) => {
-        //     await peerConnection.addIceCandidate(new RTCIceCandidate(data));
-        // });
+        socket.on('ice-candidate', async (data) => {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(data));
+        });
 
         // Get local media stream
         const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
@@ -122,11 +122,6 @@ export default function DirectCallPage() {
             offer: offer,
             from: myId,
         })
-        setCall({
-            from: myId,
-            offer: offer,
-            to: toUser,
-        })
 
         setCallStatus("calling");
         // setLocalStream(stream);
@@ -142,6 +137,12 @@ export default function DirectCallPage() {
 
             // setConnetion(peerConnection);
             setCallStatus("on");
+        })
+
+        setCall({
+            from: myId,
+            offer: offer,
+            to: toUser,
         })
     }
 
