@@ -9,6 +9,7 @@ export default function DirectCallPage() {
     const myVideo = useRef(null);
     const otherVideo = useRef(null);
     const [localStream, setLocalStream] = useState(null);
+    const [remoteStream, setRemoteStream] = useState(null);
 
     const [connection, setConnetion] = useState(null);
 
@@ -34,13 +35,13 @@ export default function DirectCallPage() {
         socket.on("callUser", (data) => {
             console.log(`receiving a call from`);
             console.log(data.signal);
-            setCallStatus("incoming");
             setCall({
                 ...call,
                 name: data.name,
                 from: data.from,
                 signal: data.signal
             });
+            setCallStatus("incoming");
         });
 
     }, [])
@@ -54,26 +55,30 @@ export default function DirectCallPage() {
             ]
         };
         const peerConnection = new RTCPeerConnection(config)
-        peerConnection.ontrack = e => otherVideo.current.srcObject = e.streams[0];
         return peerConnection;
     }
 
     async function openCamera() {
-        try {
-            const constraints = {
-                audio: true,
-                video: true
-            };
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            console.log(stream);
-            myVideo.current.srcObject = stream;
-            stream.getTracks().forEach(track => connection.addTrack(track, stream));
-            setCameraOpen(true);
-            setLocalStream(stream);
-        } catch (error) {
-            console.log(error);
-            setErrorMessage(`getUserMedia error: ${error.name}`, error);
-        }
+        // try {
+        //     const constraints = {
+        //         audio: true,
+        //         video: true
+        //     };
+        //     const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        //     console.log(stream);
+        //     myVideo.current.srcObject = stream;
+        //     stream.getTracks().forEach(track => connection.addTrack(track, stream));
+        //     setCameraOpen(true);
+        //     setLocalStream(stream);
+        // } catch (error) {
+        //     console.log(error);
+        //     setErrorMessage(`getUserMedia error: ${error.name}`, error);
+        // }
+        console.log(localStream);
+        console.log(remoteStream);
+        myVideo.current.srcObject = localStream;
+        otherVideo.current.srcObject = remoteStream;
+        setCameraOpen(true);
     }
 
     async function callUser(event) {
@@ -87,14 +92,13 @@ export default function DirectCallPage() {
         // Create peer connection
         let peerConnection = createPeerConnection();
 
-        // peerConnection.ontrack = e => otherVideo.current.srcObject = e.streams[0];
+        peerConnection.ontrack = e => setRemoteStream(e.streams[0]);
 
-        // Get media stream
-        // const localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: true})
-        // console.log(localStream);
-        // setLocalStream(localStream);
-        // myVideo.current.srcObject = localStream;
-        // localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+        // Get local media stream
+        const localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: true})
+        console.log(localStream);
+        setLocalStream(localStream);
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
         // Create offer
         const offer = await peerConnection.createOffer();
@@ -124,24 +128,24 @@ export default function DirectCallPage() {
             // myVideo.current.srcObject = localStream;
             console.log(signal);
             peerConnection.setRemoteDescription(signal);
-            setConnetion(peerConnection);
+            // setConnetion(peerConnection);
         })
     }
 
     async function acceptCall() {
-        setCallStatus("accepted");
+        // setCallStatus("accepted");
 
         let peerConnection = createPeerConnection();
 
+        peerConnection.ontrack = e => setRemoteStream(e.streams[0]);
+
         await peerConnection.setRemoteDescription(call.signal);
 
-        // Get media stream
-        // const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true})
-        // console.log(stream);
-        // setLocalStream(stream);
-        // myVideo.current.srcObject = localStream;
-        // stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
-        // myVideo.current.srcObject = localStream;
+        // Get local media stream
+        const localStream = await navigator.mediaDevices.getUserMedia({audio: true, video: true})
+        console.log(localStream);
+        setLocalStream(localStream);
+        localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
@@ -189,12 +193,12 @@ export default function DirectCallPage() {
             return (
                 <div>
                     <div className="camera-wrapper">
-                        <div className="flex-column">
-                            <div>
-                                <video autoPlay playsInline ref={myVideo}></video>
+                        <div className="flex-row">
+                            <div className="video-wrapper">
+                                <video id="myVideo" autoPlay playsInline ref={myVideo}></video>
                             </div>
-                            <div>
-                                <video autoPlay playsInline ref={otherVideo}></video>
+                            <div className="video-wrapper">
+                                <video id="remoteVideo" autoPlay playsInline ref={otherVideo}></video>
                             </div>
                         </div>
 

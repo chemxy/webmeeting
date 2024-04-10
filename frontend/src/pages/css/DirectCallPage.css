@@ -1,7 +1,13 @@
-.camera-wrapper{
+.camera-wrapper {
     border: black solid 1px;
 }
 
-.input-call-id{
+.input-call-id {
     width: 20%;
+}
+
+.video-wrapper {
+    border: green solid 1px;
+    /*width: 500px;*/
+    /*height: 500px;*/
 }
