@@ -102,7 +102,7 @@ export default function DirectCallPage() {
         localStream.current = stream;
 
         socket.on('ice-candidate', async (data) => {
-            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            await peerConnection.addIceCandidate(data.candidate);
         });
 
         // Create offer
@@ -165,7 +165,7 @@ export default function DirectCallPage() {
         localStream.current = stream;
 
         socket.on('ice-candidate', async (data) => {
-            await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+            await peerConnection.addIceCandidate(data.candidate);
         });
 
         const answer = await peerConnection.createAnswer();
@@ -174,7 +174,6 @@ export default function DirectCallPage() {
         console.log("creating answer");
         console.log(answer);
         socket.emit("answerCall", {answer: answer, to: call.from});
-
 
 
         setCallStatus("on");
