@@ -93,6 +93,10 @@ export default function DirectCallPage() {
             }
         };
 
+        socket.on('ice-candidate', async (data) => {
+            await peerConnection.addIceCandidate(data.candidate);
+        });
+
         // Get local media stream
         const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
         console.log("local stream");
@@ -100,11 +104,7 @@ export default function DirectCallPage() {
         console.log(stream.getTracks());
         stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
         localStream.current = stream;
-
-        socket.on('ice-candidate', async (data) => {
-            await peerConnection.addIceCandidate(data.candidate);
-        });
-
+        
         // Create offer
         const offer = await peerConnection.createOffer();
         console.log("creating offer");
