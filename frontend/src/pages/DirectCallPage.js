@@ -93,10 +93,6 @@ export default function DirectCallPage() {
             }
         };
 
-        socket.on('ice-candidate', async (data) => {
-            await peerConnection.addIceCandidate(data.candidate);
-        });
-
         // Get local media stream
         const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
         console.log("local stream");
@@ -104,7 +100,7 @@ export default function DirectCallPage() {
         console.log(stream.getTracks());
         stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
         localStream.current = stream;
-        
+
         // Create offer
         const offer = await peerConnection.createOffer();
         console.log("creating offer");
@@ -112,6 +108,10 @@ export default function DirectCallPage() {
         await peerConnection.setLocalDescription(offer);
         console.log(peerConnection);
         // setConnetion(peerConnection);
+
+        socket.on('ice-candidate', async (data) => {
+            await peerConnection.addIceCandidate(data.candidate);
+        });
 
         // Send offer to the other peer
         socket.emit("callUser", {
@@ -164,12 +164,13 @@ export default function DirectCallPage() {
         stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
         localStream.current = stream;
 
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+
         socket.on('ice-candidate', async (data) => {
             await peerConnection.addIceCandidate(data.candidate);
         });
-
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
+        
         // setConnetion(peerConnection);
         console.log("creating answer");
         console.log(answer);

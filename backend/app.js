@@ -28,11 +28,11 @@ io.on("connection", (socket) => {
         io.to(data.to).emit("callAccepted", {answer: data.answer})
     })
 
-    socket.on('ice-candidate', candidate => {
+    socket.on('ice-candidate', data => {
         console.log("Forward ICE candidate to the other peer")
-        console.log(candidate.to);
-        console.log(candidate);
-        socket.to(candidate.to).emit('ice-candidate', candidate);
+        console.log(data.to);
+        console.log(data);
+        socket.to(data.to).emit('ice-candidate', {candidate: data.candidate});
     });
 })
 
