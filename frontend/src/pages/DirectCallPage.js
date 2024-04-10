@@ -96,9 +96,9 @@ export default function DirectCallPage() {
             }
         };
 
-        socket.on('ice-candidate', async (data) => {
-            await peerConnection.addIceCandidate(new RTCIceCandidate(data));
-        });
+        // socket.on('ice-candidate', async (data) => {
+        //     await peerConnection.addIceCandidate(new RTCIceCandidate(data));
+        // });
 
         // Get local media stream
         const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
