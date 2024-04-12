@@ -54,7 +54,7 @@ export default function DirectCallPage() {
                 console.log("adding candidate")
                 await connection.current.addIceCandidate(new RTCIceCandidate(data));
             });
-            
+
             setCallStatus("incoming");
         });
 
