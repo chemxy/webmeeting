@@ -33,7 +33,7 @@ export default function HomePage() {
                 <div className="col-3 mt-5">
                     <MacroButton>
                         <Link to="/" className="custom-link text-light">
-                           +
+                            +
                         </Link>
                     </MacroButton>
                 </div>

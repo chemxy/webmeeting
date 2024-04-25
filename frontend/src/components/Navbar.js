@@ -12,13 +12,13 @@ export default function Navbar() {
                         </Link>
                     </li>
                     <li className="nav-item">
+                        <Link to="/call" className="text-capitalize nav-link">
+                            <span className="material-symbols-outlined fs-1">call</span> </Link>
+                    </li>
+                    <li className="nav-item">
                         <Link to="/" className="text-capitalize nav-link">
                             <span className="material-symbols-outlined fs-1">video_call</span>
                         </Link>
-                    </li>
-                    <li className="nav-item">
-                        <Link to="/call" className="text-capitalize nav-link">
-                            <span className="material-symbols-outlined fs-1">call</span> </Link>
                     </li>
                     <li className="nav-item">
                         <Link to="/" className="text-capitalize nav-link">
