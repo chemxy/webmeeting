@@ -1,0 +1,10 @@
+.macro-button button {
+    height: 140px;
+    width: 140px;
+    border: 1px solid cornflowerblue;
+    border-radius: 30px;
+    background-color: cornflowerblue;
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+}

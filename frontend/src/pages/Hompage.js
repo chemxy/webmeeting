@@ -1,12 +1,43 @@
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
+import MacroButton from "../components/MacroButton";
+import './css/HomePage.css'
 
 export default function HomePage() {
 
     return (
-        <>
+        <div className="ms-5">
             <div className="row">
-                <Link to="/call"><button>Make a new call</button></Link>
+                <div className="col-3 mt-5">
+                    <MacroButton>
+                        <Link to="/call" className="custom-link text-light">
+                            new call
+                        </Link>
+                    </MacroButton>
+                </div>
+                <div className="col-3 mt-5">
+                    <MacroButton>
+                        <Link to="/" className="custom-link text-light">
+                            new meeting
+                        </Link>
+                    </MacroButton>
+                </div>
             </div>
-        </>
+            <div className="row">
+                <div className="col-3 mt-5">
+                    <MacroButton>
+                        <Link to="/" className="custom-link text-light">
+                            join meeting
+                        </Link>
+                    </MacroButton>
+                </div>
+                <div className="col-3 mt-5">
+                    <MacroButton>
+                        <Link to="/" className="custom-link text-light">
+                           +
+                        </Link>
+                    </MacroButton>
+                </div>
+            </div>
+        </div>
     );
 }
