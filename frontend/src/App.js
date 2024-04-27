@@ -1,6 +1,6 @@
 import './App.css';
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
-import RootPage from "./RootPage";
+import RootPage from "./pages/RootPage";
 import HomePage from "./pages/Hompage";
 import DirectCallPage from "./pages/DirectCallPage";
 
