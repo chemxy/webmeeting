@@ -1,12 +1,12 @@
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import MacroButton from "../components/MacroButton";
 import './css/HomePage.css'
 
 export default function HomePage() {
 
     return (
-        <div className="ms-5">
-            <div className="row">
+        <div className="container row justify-content-center">
+            <div className="row justify-content-center">
                 <div className="col-3 mt-5">
                     <MacroButton>
                         <Link to="/call" className="custom-link text-light">
@@ -22,7 +22,7 @@ export default function HomePage() {
                     </MacroButton>
                 </div>
             </div>
-            <div className="row">
+            <div className="row justify-content-center">
                 <div className="col-3 mt-5">
                     <MacroButton>
                         <Link to="/" className="custom-link text-light">

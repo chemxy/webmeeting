@@ -1,6 +1,7 @@
-import {useEffect, useRef, useState} from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import './css/DirectCallPage.css';
 import io from "socket.io-client"
+import {ConnectionContext} from "../store/ConnectionContext";
 
 const socket = io.connect('http://localhost:5000')
 
@@ -11,11 +12,7 @@ export default function DirectCallPage() {
     const localStream = useRef(null);
     const remoteStream = useRef(null);
     const connection = useRef(null);
-    // const iceCandidate = useRef(null);
-    // const [localStream, setLocalStream] = useState(null);
-    // const [remoteStream, setRemoteStream] = useState(null);
 
-    // const [connection, setConnetion] = useState(null);
 
     const [callStatus, setCallStatus] = useState("new"); //new, incoming, calling, on, end,
     const [myId, setMyId] = useState("");
@@ -35,7 +32,7 @@ export default function DirectCallPage() {
         });
 
         //wait for a call
-        socket.on("receiveCall",async (data) => {
+        socket.on("receiveCall", async (data) => {
             console.log(`receiving a call from ${data.from}`);
             // console.log(data.offer);
             setCall({
@@ -44,16 +41,17 @@ export default function DirectCallPage() {
                 to: myId
             });
             // console.log(call);
-            connection.current = createPeerConnection();
-            // console.log(call.offer);
-            console.log("setting remote desc");
-            await connection.current.setRemoteDescription(data.offer);
 
-
-            socket.on('ice-candidate', async (data) => {
-                console.log("adding candidate")
-                await connection.current.addIceCandidate(new RTCIceCandidate(data));
-            });
+            // connection.current = createPeerConnection();
+            // // console.log(call.offer);
+            // console.log("setting remote desc");
+            // await connection.current.setRemoteDescription(data.offer);
+            //
+            //
+            // socket.on('ice-candidate', async (data) => {
+            //     console.log("adding candidate")
+            //     await connection.current.addIceCandidate(new RTCIceCandidate(data));
+            // });
 
             setCallStatus("incoming");
         });
@@ -165,9 +163,17 @@ export default function DirectCallPage() {
     }
 
     async function answerCall() {
-        // setCallStatus("accepted");
 
-        // let peerConnection = createPeerConnection();
+        connection.current = createPeerConnection();
+        // console.log(call.offer);
+        console.log("setting remote desc");
+        await connection.current.setRemoteDescription(call.offer);
+
+
+        socket.on('ice-candidate', async (data) => {
+            console.log("adding candidate")
+            await connection.current.addIceCandidate(new RTCIceCandidate(data));
+        });
 
         connection.current.onicecandidate = event => {
             console.log("onicecandidate")
@@ -176,7 +182,6 @@ export default function DirectCallPage() {
                 socket.emit('ice-candidate', {to: call.from, message: event.candidate});
             }
         };
-
 
         // Get local media stream
         const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
@@ -208,28 +213,50 @@ export default function DirectCallPage() {
     switch (callStatus) {
         case "new":
             return (
-                <div className="col input-call-id">
-                    <div className="row">
-                        my id: {myId}
+                <div className="row">
+                    <div className="col">
+                        <div className="video-wrapper">
+                            <video id="myVideo" autoPlay playsInline ref={myVideo}></video>
+                        </div>
+                        <div className="d-flex flex-row">
+                            <button className="icon-button">
+                                <span className="material-symbols-outlined">videocam_off</span>
+                            </button>
+                            <button className="icon-button">
+                                <span className="material-symbols-outlined">videocam</span>
+                            </button>
+                            <button className="icon-button">
+                                <span className="material-symbols-outlined">mic</span>
+                            </button>
+                            <button className="icon-button">
+                                <span className="material-symbols-outlined">mic_off</span>
+                            </button>
+                        </div>
                     </div>
-                    <div className="row ">
-                        <form onSubmit={(e) => callUser(e)}>
-                            <div className="col">
-                                <div className="row">
-                                    <label>ID</label>
+                    <div className="col input-call-id">
+                        <div className="row">
+                            my id: {myId}
+                        </div>
+                        <div className="row">
+                            <form onSubmit={(e) => callUser(e)}>
+                                <div className="col">
+                                    <div className="row">
+                                        <label>ID</label>
+                                    </div>
+                                    <div className="row">
+                                        <input type="text" name="to"/>
+                                    </div>
+                                    <div className="row">
+                                        <button type="submit" className="text-capitalize">call</button>
+                                    </div>
                                 </div>
-                                <div className="row">
-                                    <input type="text" name="to"/>
-                                </div>
-                                <div className="row">
-                                    <button type="submit" className="text-capitalize">call</button>
-                                </div>
-                            </div>
 
-                        </form>
+                            </form>
 
+                        </div>
                     </div>
                 </div>
+
             );
         case "on":
             return (
