@@ -1,0 +1,14 @@
+.profile-picture {
+    height: 20px;
+    width: 20px;
+}
+
+.profile-picture-wrapper {
+    height: 30px;
+    width: 30px;
+    border: 2px solid grey;
+}
+
+.header {
+    height: 60px;
+}

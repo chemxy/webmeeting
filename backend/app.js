@@ -18,7 +18,7 @@ io.on("connection", (socket) => {
 
     socket.on("callUser", (data) => {
         console.log("calling a user " + data.userToCall);
-        // console.log(data);
+        console.log(data);
         io.to(data.userToCall).emit("receiveCall", {offer: data.offer, from: data.from})
     })
 
@@ -29,7 +29,7 @@ io.on("connection", (socket) => {
     })
 
     socket.on('ice-candidate', data => {
-        console.log("Forward ICE candidate to " + data.to)
+        // console.log("Forward ICE candidate to " + data.to)
         // console.log(data.to);
         // console.log(data);
         socket.to(data.to).emit('ice-candidate', data.message);

@@ -2,10 +2,14 @@ import {useContext, useEffect, useRef, useState} from "react";
 import './css/DirectCallPage.css';
 import io from "socket.io-client"
 import {ConnectionContext} from "../store/ConnectionContext";
+import {CallStatus} from "../common/call-status";
+import {IdContext} from "../store/IdContext";
 
 const socket = io.connect('http://localhost:5000')
 
 export default function DirectCallPage() {
+
+    const idContext = useContext(IdContext);
 
     const myVideo = useRef(null);
     const remoteVideo = useRef(null);
@@ -14,8 +18,7 @@ export default function DirectCallPage() {
     const connection = useRef(null);
 
 
-    const [callStatus, setCallStatus] = useState("new"); //new, incoming, calling, on, end,
-    const [myId, setMyId] = useState("");
+    const [callStatus, setCallStatus] = useState(CallStatus.NEW);
     const [errorMessage, setErrorMessage] = useState("");
     const [isCameraOpen, setCameraOpen] = useState(false);
 
@@ -27,9 +30,9 @@ export default function DirectCallPage() {
 
     useEffect(() => {
         //get my session id
-        socket.on("me", (id) => {
-            setMyId(id);
-        });
+        // socket.on("me", (id) => {
+        //     setMyId(id);
+        // });
 
         //wait for a call
         socket.on("receiveCall", async (data) => {
@@ -38,7 +41,7 @@ export default function DirectCallPage() {
             setCall({
                 from: data.from,
                 offer: data.offer,
-                to: myId
+                to: idContext
             });
             // console.log(call);
 
@@ -131,7 +134,7 @@ export default function DirectCallPage() {
         socket.emit("callUser", {
             userToCall: toUser,
             offer: offer,
-            from: myId,
+            from: idContext.myId,
         })
 
         console.log("setting local desc");
@@ -156,7 +159,7 @@ export default function DirectCallPage() {
         })
 
         setCall({
-            from: myId,
+            from: idContext,
             offer: offer,
             to: toUser,
         })
@@ -211,9 +214,9 @@ export default function DirectCallPage() {
     }
 
     switch (callStatus) {
-        case "new":
+        case CallStatus.NEW:
             return (
-                <div className="row">
+                <div className="row conatiner">
                     <div className="col">
                         <div className="video-wrapper">
                             <video id="myVideo" autoPlay playsInline ref={myVideo}></video>
@@ -235,9 +238,6 @@ export default function DirectCallPage() {
                     </div>
                     <div className="col input-call-id">
                         <div className="row">
-                            my id: {myId}
-                        </div>
-                        <div className="row">
                             <form onSubmit={(e) => callUser(e)}>
                                 <div className="col">
                                     <div className="row">
@@ -258,10 +258,10 @@ export default function DirectCallPage() {
                 </div>
 
             );
-        case "on":
+        case CallStatus.ON_CALL:
             return (
                 <div>
-                    <div>I am {myId}</div>
+                    <div>I am {idContext}</div>
                     <div className="camera-wrapper">
                         <div className="flex-row">
                             <div className="video-wrapper">
@@ -281,7 +281,7 @@ export default function DirectCallPage() {
                     </div>
                 </div>
             );
-        case "incoming":
+        case CallStatus.INCOMING:
             return (
                 <div>
                     <div>
@@ -292,7 +292,7 @@ export default function DirectCallPage() {
                     </div>
                 </div>
             )
-        case "calling":
+        case CallStatus.OUTGOING:
             return (
                 <div>
                     calling: {call.to}
