@@ -3,13 +3,13 @@ import './css/DirectCallPage.css';
 import io from "socket.io-client"
 import {ConnectionContext} from "../store/ConnectionContext";
 import {CallStatus} from "../common/call-status";
-import {IdContext} from "../store/IdContext";
-
-const socket = io.connect('http://localhost:5000')
+import {socket, SocketContext} from "../store/SocketContext";
+import {CallContext} from "../store/CallContext";
 
 export default function DirectCallPage() {
 
-    const idContext = useContext(IdContext);
+    const idContext = useContext(SocketContext);
+    const callContext = useContext(CallContext);
 
     const myVideo = useRef(null);
     const remoteVideo = useRef(null);
@@ -17,49 +17,49 @@ export default function DirectCallPage() {
     const remoteStream = useRef(null);
     const connection = useRef(null);
 
-
     const [callStatus, setCallStatus] = useState(CallStatus.NEW);
     const [errorMessage, setErrorMessage] = useState("");
     const [isCameraOpen, setCameraOpen] = useState(false);
 
-    const [call, setCall] = useState({
-        from: "",
-        offer: "",
-        to: "",
-    })
+    // const [call, setCall] = useState({
+    //     from: "",
+    //     offer: "",
+    //     to: "",
+    // })
 
-    useEffect(() => {
+
+    // useEffect(() => {
         //get my session id
         // socket.on("me", (id) => {
         //     setMyId(id);
         // });
 
         //wait for a call
-        socket.on("receiveCall", async (data) => {
-            console.log(`receiving a call from ${data.from}`);
-            // console.log(data.offer);
-            setCall({
-                from: data.from,
-                offer: data.offer,
-                to: idContext
-            });
-            // console.log(call);
+        // socket.on("receiveCall", async (data) => {
+        //     console.log(`receiving a call from ${data.from}`);
+        //     // console.log(data.offer);
+        //     setCall({
+        //         from: data.from,
+        //         offer: data.offer,
+        //         to: idContext
+        //     });
+        //     console.log(call);
+        //
+        //     connection.current = createPeerConnection();
+        //     // console.log(call.offer);
+        //     console.log("setting remote desc");
+        //     await connection.current.setRemoteDescription(data.offer);
+        //
+        //
+        //     socket.on('ice-candidate', async (data) => {
+        //         console.log("adding candidate")
+        //         await connection.current.addIceCandidate(new RTCIceCandidate(data));
+        //     });
+        //
+        //     setCallStatus("incoming");
+        // });
 
-            // connection.current = createPeerConnection();
-            // // console.log(call.offer);
-            // console.log("setting remote desc");
-            // await connection.current.setRemoteDescription(data.offer);
-            //
-            //
-            // socket.on('ice-candidate', async (data) => {
-            //     console.log("adding candidate")
-            //     await connection.current.addIceCandidate(new RTCIceCandidate(data));
-            // });
-
-            setCallStatus("incoming");
-        });
-
-    }, [])
+    // }, [])
 
     // Function to create an RTCPeerConnection object
     function createPeerConnection() {
@@ -142,6 +142,7 @@ export default function DirectCallPage() {
         // console.log(peerConnection);
 
         setCallStatus("calling");
+        callContext.setStatus(CallStatus.OUTGOING);
         // setLocalStream(stream);
 
         //wait for the other peer to accept the call
@@ -149,71 +150,72 @@ export default function DirectCallPage() {
 
             // openCamera(peerConnection);
             // myVideo.current.srcObject = localStream;
-            console.log("accepting call")
+            console.log("call accepted")
             console.log(data.answer);
             console.log("setting remote desc");
             peerConnection.setRemoteDescription(data.answer);
 
             // setConnetion(peerConnection);
-            setCallStatus("on");
+            callContext.setStatus(CallStatus.ON_CALL);
         })
 
-        setCall({
+        callContext.setCall({
             from: idContext,
             offer: offer,
             to: toUser,
         })
     }
 
-    async function answerCall() {
-
-        connection.current = createPeerConnection();
-        // console.log(call.offer);
-        console.log("setting remote desc");
-        await connection.current.setRemoteDescription(call.offer);
-
-
-        socket.on('ice-candidate', async (data) => {
-            console.log("adding candidate")
-            await connection.current.addIceCandidate(new RTCIceCandidate(data));
-        });
-
-        connection.current.onicecandidate = event => {
-            console.log("onicecandidate")
-            if (event.candidate) {
-                console.log("sending candidate from receiver to " + call.from)
-                socket.emit('ice-candidate', {to: call.from, message: event.candidate});
-            }
-        };
-
-        // Get local media stream
-        const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
-        console.log("local stream");
-        console.log(stream);
-        console.log(stream.getTracks());
-        stream.getTracks().forEach(track => connection.current.addTrack(track, stream));
-        localStream.current = stream;
-
-        console.log("creating answer");
-        const answer = await connection.current.createAnswer();
-        console.log(answer);
-
-        console.log("setting local desc");
-        await connection.current.setLocalDescription(answer);
-        console.log(connection.current);
-
-        console.log("sending answer");
-        socket.emit("answerCall", {answer: answer, to: call.from});
-
-        setCallStatus("on");
-    }
+    // async function answerCall() {
+    //
+    //     connection.current = createPeerConnection();
+    //     // console.log(call.offer);
+    //     console.log("setting remote desc");
+    //     await connection.current.setRemoteDescription(callContext.call.offer);
+    //
+    //
+    //     socket.on('ice-candidate', async (data) => {
+    //         console.log("adding candidate")
+    //         await connection.current.addIceCandidate(new RTCIceCandidate(data));
+    //     });
+    //
+    //     connection.current.onicecandidate = event => {
+    //         console.log("onicecandidate")
+    //         if (event.candidate) {
+    //             console.log("sending candidate from receiver to " + callContext.call.from)
+    //             socket.emit('ice-candidate', {to: callContext.call.from, message: event.candidate});
+    //         }
+    //     };
+    //
+    //     // Get local media stream
+    //     const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+    //     console.log("local stream");
+    //     console.log(stream);
+    //     console.log(stream.getTracks());
+    //     stream.getTracks().forEach(track => connection.current.addTrack(track, stream));
+    //     localStream.current = stream;
+    //
+    //     console.log("creating answer");
+    //     const answer = await connection.current.createAnswer();
+    //     console.log(answer);
+    //
+    //     console.log("setting local desc");
+    //     await connection.current.setLocalDescription(answer);
+    //     console.log(connection.current);
+    //
+    //     console.log("sending answer");
+    //     socket.emit("answerCall", {answer: answer, to: callContext.call.from});
+    //
+    //     callContext.setStatus(CallStatus.ON_CALL);
+    //
+    // }
 
     function hangUpCall() {
         console.log("hanging up a call");
         setCallStatus(true);
     }
 
-    switch (callStatus) {
+    switch (callContext.status) {
         case CallStatus.NEW:
             return (
                 <div className="row conatiner">
@@ -261,7 +263,6 @@ export default function DirectCallPage() {
         case CallStatus.ON_CALL:
             return (
                 <div>
-                    <div>I am {idContext}</div>
                     <div className="camera-wrapper">
                         <div className="flex-row">
                             <div className="video-wrapper">
@@ -281,21 +282,10 @@ export default function DirectCallPage() {
                     </div>
                 </div>
             );
-        case CallStatus.INCOMING:
-            return (
-                <div>
-                    <div>
-                        receiving incoming call from: {call.from}
-                    </div>
-                    <div>
-                        <button onClick={answerCall}>Answer</button>
-                    </div>
-                </div>
-            )
         case CallStatus.OUTGOING:
             return (
                 <div>
-                    calling: {call.to}
+                    calling: {callContext.call.to}
                 </div>
             )
     }

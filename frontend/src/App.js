@@ -5,7 +5,7 @@ import HomePage from "./pages/Hompage";
 import DirectCallPage from "./pages/DirectCallPage";
 import {useEffect, useState} from "react";
 import {ConnectionContext} from "./store/ConnectionContext";
-import {IdContext} from "./store/IdContext";
+import {socket, SocketContext} from "./store/SocketContext";
 import {CallContext} from "./store/CallContext";
 import io from "socket.io-client";
 import {ThemeContext} from "./store/ThemeContext";
@@ -36,8 +36,6 @@ function App() {
         offer: null
     });
 
-    const socket = io.connect('http://localhost:5000')
-
     useEffect(() => {
         socket.on("me", (id) => {
             console.log(id)
@@ -46,6 +44,7 @@ function App() {
     }, []);
 
     useEffect(() => {
+        // if(callStatus === CallStatus.NEW){
         socket.on("receiveCall", async (data) => {
             console.log(`receiving a call from ${data.from}`);
             // console.log(data.offer);
@@ -57,6 +56,8 @@ function App() {
 
             setCallStatus(CallStatus.INCOMING);
         })
+        // }
+
     }, []);
 
     function toggleTheme() {
@@ -91,13 +92,13 @@ function App() {
 
     return (
         <ThemeContext.Provider value={themeContextValue}>
-            <IdContext.Provider value={myIdContextValue}>
+            <SocketContext.Provider value={myIdContextValue}>
                 <CallContext.Provider value={callContextValue}>
                     <ConnectionContext.Provider value={connectionContextValue}>
                         <RouterProvider router={router}></RouterProvider>
                     </ConnectionContext.Provider>
                 </CallContext.Provider>
-            </IdContext.Provider>
+            </SocketContext.Provider>
         </ThemeContext.Provider>
     );
 }

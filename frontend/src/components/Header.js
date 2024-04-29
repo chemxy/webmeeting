@@ -1,11 +1,11 @@
 import {useContext} from "react";
-import {IdContext} from "../store/IdContext";
+import {SocketContext} from "../store/SocketContext";
 import myImage from "../assets/images/default_user.png";
 import "./css/Header.css";
 
 export default function Header() {
 
-    const myId = useContext(IdContext);
+    const myId = useContext(SocketContext);
 
     return (
         <div className="header d-flex flex-row align-items-center justify-content-end bg-light border rounded-pill">

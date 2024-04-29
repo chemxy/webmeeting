@@ -18,13 +18,13 @@ io.on("connection", (socket) => {
 
     socket.on("callUser", (data) => {
         console.log("calling a user " + data.userToCall);
-        console.log(data);
+        // console.log(data);
         io.to(data.userToCall).emit("receiveCall", {offer: data.offer, from: data.from})
     })
 
     socket.on("answerCall", (data) => {
         console.log("answering a call to " + data.to);
-        // console.log(data);
+        console.log(data.answer);
         io.to(data.to).emit("callAccepted", {answer: data.answer})
     })
 
