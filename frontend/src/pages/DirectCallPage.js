@@ -37,8 +37,9 @@ export default function DirectCallPage() {
             },
         }).then(
             s => {
-                console.log(s);
+                // console.log(s);
                 connectionContext.setLocalStream(s);
+                console.log(connectionContext.localStream)
             }
         );
 
@@ -94,15 +95,15 @@ export default function DirectCallPage() {
         return peerConnection;
     }
 
-    async function openCamera() {
-        myVideo.current.srcObject = localStream.current;
-        remoteVideo.current.srcObject = remoteStream.current;
-        console.log(myVideo.current.srcObject);
-        console.log(myVideo.current.srcObject.getTracks());
-        console.log(remoteVideo.current.srcObject);
-        console.log(remoteVideo.current.srcObject.getTracks());
-        setCameraOpen(true);
-    }
+    // async function openCamera() {
+    //     myVideo.current.srcObject = localStream.current;
+    //     remoteVideo.current.srcObject = remoteStream.current;
+    //     console.log(myVideo.current.srcObject);
+    //     console.log(myVideo.current.srcObject.getTracks());
+    //     console.log(remoteVideo.current.srcObject);
+    //     console.log(remoteVideo.current.srcObject.getTracks());
+    //     setCameraOpen(true);
+    // }
 
     async function callUser(event) {
         event.preventDefault();
@@ -129,7 +130,8 @@ export default function DirectCallPage() {
         });
 
         // Get local media stream
-        const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+        // const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+        const stream = connectionContext.localStream;
         console.log("local stream");
         console.log(stream);
         console.log(stream.getTracks());
@@ -171,7 +173,7 @@ export default function DirectCallPage() {
         })
 
         callContext.setCall({
-            from: idContext,
+            from: idContext.myId,
             offer: offer,
             to: toUser,
         })
@@ -298,9 +300,6 @@ export default function DirectCallPage() {
                                 <video id="remoteVideo" autoPlay playsInline ref={remoteVideo}></video>
                             </div>
                         </div>
-
-                        <button disabled={isCameraOpen} onClick={openCamera}>Open camera</button>
-
                         <div>{errorMessage}</div>
                     </div>
                     <div>
