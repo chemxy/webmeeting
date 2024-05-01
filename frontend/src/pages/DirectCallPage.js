@@ -247,8 +247,8 @@ export default function DirectCallPage() {
     switch (callContext.status) {
         case CallStatus.NEW:
             return (
-                <div className="d-flex flex-row conatiner">
-                    <div className="">
+                <div className="d-flex flex-row">
+                    <div className="w-75">
                         <div className="video-wrapper">
                             <video id="myVideo" autoPlay playsInline ref={myVideo}></video>
                         </div>
@@ -267,20 +267,19 @@ export default function DirectCallPage() {
                             </button>
                         </div>
                     </div>
-                    <div className="">
+                    <div className="w25">
                         <form onSubmit={(e) => callUser(e)}>
-                            <div className="col">
-                                <div className="row">
-                                    <label>ID</label>
+                            <div>
+                                <div>
+                                    <label>Recipient ID</label>
                                 </div>
-                                <div className="row">
+                                <div className="mt-2">
                                     <input type="text" name="to"/>
                                 </div>
-                                <div className="row">
+                                <div className="mt-4">
                                     <button type="submit" className="text-capitalize">call</button>
                                 </div>
                             </div>
-
                         </form>
                     </div>
                 </div>
