@@ -3,14 +3,15 @@
 }
 
 .input-call-id {
-    width: 50%;
+    /*width: 50%;*/
 }
 
 .video-wrapper {
     border: green solid 1px;
     border-radius: 26px;
-    width: 600px;
-    height: 400px;
+    width: 960px;
+    height: 540px;
+    /*overflow: hidden;*/
 }
 
 .icon-button {

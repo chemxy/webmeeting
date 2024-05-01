@@ -6,6 +6,7 @@ import {CallContext} from "../store/CallContext";
 import {CallStatus} from "../common/call-status";
 import {ConnectionContext} from "../store/ConnectionContext";
 import {socket} from "../store/SocketContext";
+import "./css/RootPage.css";
 
 export default function RootPage() {
 
@@ -105,14 +106,12 @@ export default function RootPage() {
                 </dialog>
             </div>
 
-            <div className="row container">
-                <div className="col-2 d-flex align-items-center m-auto">
-                    <div className="navbar-wrapper">
-                        <Navbar></Navbar>
-                    </div>
+            <div className="d-flex flex-row m-auto" id="root-wrapper">
+                <div className="d-flex align-items-center" id="navbar-wrapper">
+                    <Navbar></Navbar>
                 </div>
-                <div className="col-10 align-items-center m-auto">
-                    <div className="row">
+                <div className="align-items-center mt-10" id="header-wrapper">
+                    <div className="row mb-10">
                         <Header></Header>
                     </div>
                     <div className="row">

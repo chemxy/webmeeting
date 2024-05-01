@@ -10,6 +10,7 @@ export default function DirectCallPage() {
 
     const idContext = useContext(SocketContext);
     const callContext = useContext(CallContext);
+    const connectionContext = useContext(ConnectionContext);
 
     const myVideo = useRef(null);
     const remoteVideo = useRef(null);
@@ -21,43 +22,53 @@ export default function DirectCallPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [isCameraOpen, setCameraOpen] = useState(false);
 
-    // const [call, setCall] = useState({
-    //     from: "",
-    //     offer: "",
-    //     to: "",
-    // })
+    useEffect(() => {
+        const webcamHeight = 540;
+        const webcamWidth = 960;
+        navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: {
+                width: {ideal: webcamWidth},
+                height: {ideal: webcamHeight}
+            },
+            frameRate: 30,
+            aspectRatio: {
+                exact: webcamHeight / webcamWidth,
+            },
+        }).then(
+            s => {
+                console.log(s);
+                connectionContext.setLocalStream(s);
+            }
+        );
+
+    }, []);
 
 
-    // useEffect(() => {
-        //get my session id
-        // socket.on("me", (id) => {
-        //     setMyId(id);
-        // });
-
-        //wait for a call
-        // socket.on("receiveCall", async (data) => {
-        //     console.log(`receiving a call from ${data.from}`);
-        //     // console.log(data.offer);
-        //     setCall({
-        //         from: data.from,
-        //         offer: data.offer,
-        //         to: idContext
-        //     });
-        //     console.log(call);
-        //
-        //     connection.current = createPeerConnection();
-        //     // console.log(call.offer);
-        //     console.log("setting remote desc");
-        //     await connection.current.setRemoteDescription(data.offer);
-        //
-        //
-        //     socket.on('ice-candidate', async (data) => {
-        //         console.log("adding candidate")
-        //         await connection.current.addIceCandidate(new RTCIceCandidate(data));
-        //     });
-        //
-        //     setCallStatus("incoming");
-        // });
+    //wait for a call
+    // socket.on("receiveCall", async (data) => {
+    //     console.log(`receiving a call from ${data.from}`);
+    //     // console.log(data.offer);
+    //     setCall({
+    //         from: data.from,
+    //         offer: data.offer,
+    //         to: idContext
+    //     });
+    //     console.log(call);
+    //
+    //     connection.current = createPeerConnection();
+    //     // console.log(call.offer);
+    //     console.log("setting remote desc");
+    //     await connection.current.setRemoteDescription(data.offer);
+    //
+    //
+    //     socket.on('ice-candidate', async (data) => {
+    //         console.log("adding candidate")
+    //         await connection.current.addIceCandidate(new RTCIceCandidate(data));
+    //     });
+    //
+    //     setCallStatus("incoming");
+    // });
 
     // }, [])
 
@@ -210,6 +221,24 @@ export default function DirectCallPage() {
     //
     // }
 
+    function turnOnCamera() {
+        console.log("turn on camera")
+        myVideo.current.srcObject = connectionContext.localStream;
+    }
+
+    function turnOffCamera() {
+        console.log("turn off camera")
+        myVideo.current.srcObject = null;
+    }
+
+    function mute() {
+        console.log("turn on mic")
+    }
+
+    function unmute() {
+        console.log("turn off mic")
+    }
+
     function hangUpCall() {
         console.log("hanging up a call");
         setCallStatus(true);
@@ -218,46 +247,44 @@ export default function DirectCallPage() {
     switch (callContext.status) {
         case CallStatus.NEW:
             return (
-                <div className="row conatiner">
-                    <div className="col">
+                <div className="d-flex flex-row conatiner">
+                    <div className="">
                         <div className="video-wrapper">
                             <video id="myVideo" autoPlay playsInline ref={myVideo}></video>
                         </div>
                         <div className="d-flex flex-row">
-                            <button className="icon-button">
-                                <span className="material-symbols-outlined">videocam_off</span>
-                            </button>
-                            <button className="icon-button">
+                            <button className="icon-button" onClick={turnOnCamera}>
                                 <span className="material-symbols-outlined">videocam</span>
                             </button>
-                            <button className="icon-button">
+                            <button className="icon-button" onClick={turnOffCamera}>
+                                <span className="material-symbols-outlined">videocam_off</span>
+                            </button>
+                            <button className="icon-button" onClick={mute}>
                                 <span className="material-symbols-outlined">mic</span>
                             </button>
-                            <button className="icon-button">
+                            <button className="icon-button" onClick={unmute}>
                                 <span className="material-symbols-outlined">mic_off</span>
                             </button>
                         </div>
                     </div>
-                    <div className="col input-call-id">
-                        <div className="row">
-                            <form onSubmit={(e) => callUser(e)}>
-                                <div className="col">
-                                    <div className="row">
-                                        <label>ID</label>
-                                    </div>
-                                    <div className="row">
-                                        <input type="text" name="to"/>
-                                    </div>
-                                    <div className="row">
-                                        <button type="submit" className="text-capitalize">call</button>
-                                    </div>
+                    <div className="">
+                        <form onSubmit={(e) => callUser(e)}>
+                            <div className="col">
+                                <div className="row">
+                                    <label>ID</label>
                                 </div>
+                                <div className="row">
+                                    <input type="text" name="to"/>
+                                </div>
+                                <div className="row">
+                                    <button type="submit" className="text-capitalize">call</button>
+                                </div>
+                            </div>
 
-                            </form>
-
-                        </div>
+                        </form>
                     </div>
                 </div>
+
 
             );
         case CallStatus.ON_CALL:

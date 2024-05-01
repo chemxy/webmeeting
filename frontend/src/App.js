@@ -1,4 +1,4 @@
-import './App.css';
+import './App.scss';
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import RootPage from "./pages/RootPage";
 import HomePage from "./pages/Hompage";
@@ -7,7 +7,6 @@ import {useEffect, useState} from "react";
 import {ConnectionContext} from "./store/ConnectionContext";
 import {socket, SocketContext} from "./store/SocketContext";
 import {CallContext} from "./store/CallContext";
-import io from "socket.io-client";
 import {ThemeContext} from "./store/ThemeContext";
 import {CallStatus} from "./common/call-status";
 import {MyTheme} from "./common/my-theme";
@@ -41,6 +40,7 @@ function App() {
             console.log(id)
             setMyId(id);
         });
+
     }, []);
 
     useEffect(() => {

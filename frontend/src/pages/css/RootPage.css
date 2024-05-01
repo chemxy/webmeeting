@@ -1,0 +1,12 @@
+#root-wrapper {
+    width: 90%;
+    height: 100vh;
+}
+
+#navbar-wrapper {
+    width: 10%;
+}
+
+#header-wrapper {
+    width: 90%;
+}
