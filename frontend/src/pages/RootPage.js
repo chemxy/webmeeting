@@ -110,11 +110,11 @@ export default function RootPage() {
                 <div className="d-flex align-items-center" id="navbar-wrapper">
                     <Navbar></Navbar>
                 </div>
-                <div className="align-items-center mt-10" id="header-wrapper">
-                    <div className="row mb-10">
+                <div className="align-items-center mt-10" id="right-wrapper">
+                    <div className="row mb-10" id="header-wrapper">
                         <Header></Header>
                     </div>
-                    <div className="row">
+                    <div className="row" id="content-wrapper">
                         <Outlet></Outlet>
                     </div>
                 </div>

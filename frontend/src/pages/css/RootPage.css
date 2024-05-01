@@ -7,6 +7,14 @@
     width: 10%;
 }
 
-#header-wrapper {
+#right-wrapper {
     width: 90%;
+}
+
+#header-wrapper {
+    height: 5%;
+}
+
+#content-wrapper {
+    min-height: 10%;
 }
