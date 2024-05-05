@@ -20,11 +20,12 @@ export default function DirectCallPage() {
 
     const [errorMessage, setErrorMessage] = useState("");
     const [isCameraOpen, setCameraOpen] = useState(false);
+    const [isMuted, setIsMuted] = useState(false);
 
     useEffect(() => {
-        callContext.setStatus(CallStatus.ON_CALL)
-        const webcamHeight = 540;
-        const webcamWidth = 960;
+        // callContext.setStatus(CallStatus.ON_CALL)
+        const webcamHeight = 320;
+        const webcamWidth = 600;
         navigator.mediaDevices.getUserMedia({
             audio: false,
             video: {
@@ -153,19 +154,23 @@ export default function DirectCallPage() {
     function turnOnCamera() {
         console.log("turn on camera")
         myVideo.current.srcObject = connectionContext.localStream;
+        setCameraOpen(true)
     }
 
     function turnOffCamera() {
         console.log("turn off camera")
         myVideo.current.srcObject = null;
+        setCameraOpen(false)
     }
 
     function mute() {
         console.log("turn on mic")
+        setIsMuted(true);
     }
 
     function unmute() {
-        console.log("turn off mic")
+        console.log("turn off mic");
+        setIsMuted(false);
     }
 
     function hangUpCall() {
@@ -181,18 +186,20 @@ export default function DirectCallPage() {
                             <video id="myVideo" autoPlay playsInline ref={myVideo}></video>
                         </div>
                         <div className="d-flex flex-row">
-                            <button className="icon-button" onClick={turnOnCamera}>
-                                <span className="material-symbols-outlined">videocam</span>
-                            </button>
-                            <button className="icon-button" onClick={turnOffCamera}>
+                            {!isCameraOpen && <button className="icon-button" onClick={turnOnCamera}>
                                 <span className="material-symbols-outlined">videocam_off</span>
-                            </button>
-                            <button className="icon-button" onClick={mute}>
+                            </button>}
+                            {isCameraOpen && <button className="icon-button" onClick={turnOffCamera}>
+                                <span className="material-symbols-outlined">videocam</span>
+                            </button>}
+                            {!isMuted && <button className="icon-button" onClick={mute}>
                                 <span className="material-symbols-outlined">mic</span>
-                            </button>
-                            <button className="icon-button" onClick={unmute}>
+                            </button>}
+                            {isMuted && <button className="icon-button" onClick={unmute}>
                                 <span className="material-symbols-outlined">mic_off</span>
-                            </button>
+                            </button>}
+
+
                         </div>
                     </div>
                     <div className="w25">

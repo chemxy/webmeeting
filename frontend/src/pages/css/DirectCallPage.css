@@ -9,8 +9,8 @@
 .video-wrapper {
     border: green solid 1px;
     border-radius: 26px;
-    width: 960px;
-    height: 540px;
+    width: 600px;
+    height: 320px;
     /*overflow: hidden;*/
 }
 
