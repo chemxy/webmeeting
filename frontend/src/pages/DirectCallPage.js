@@ -18,16 +18,15 @@ export default function DirectCallPage() {
     const remoteStream = useRef(null);
     const connection = useRef(null);
 
-    const [callStatus, setCallStatus] = useState(CallStatus.NEW);
     const [errorMessage, setErrorMessage] = useState("");
     const [isCameraOpen, setCameraOpen] = useState(false);
 
     useEffect(() => {
-
+        callContext.setStatus(CallStatus.ON_CALL)
         const webcamHeight = 540;
         const webcamWidth = 960;
         navigator.mediaDevices.getUserMedia({
-            audio: true,
+            audio: false,
             video: {
                 width: {ideal: webcamWidth},
                 height: {ideal: webcamHeight}
@@ -45,34 +44,6 @@ export default function DirectCallPage() {
         );
 
     }, []);
-
-
-    //wait for a call
-    // socket.on("receiveCall", async (data) => {
-    //     console.log(`receiving a call from ${data.from}`);
-    //     // console.log(data.offer);
-    //     setCall({
-    //         from: data.from,
-    //         offer: data.offer,
-    //         to: idContext
-    //     });
-    //     console.log(call);
-    //
-    //     connection.current = createPeerConnection();
-    //     // console.log(call.offer);
-    //     console.log("setting remote desc");
-    //     await connection.current.setRemoteDescription(data.offer);
-    //
-    //
-    //     socket.on('ice-candidate', async (data) => {
-    //         console.log("adding candidate")
-    //         await connection.current.addIceCandidate(new RTCIceCandidate(data));
-    //     });
-    //
-    //     setCallStatus("incoming");
-    // });
-
-    // }, [])
 
     // Function to create an RTCPeerConnection object
     function createPeerConnection() {
@@ -178,50 +149,6 @@ export default function DirectCallPage() {
             to: toUser,
         })
     }
-
-    // async function answerCall() {
-    //
-    //     connection.current = createPeerConnection();
-    //     // console.log(call.offer);
-    //     console.log("setting remote desc");
-    //     await connection.current.setRemoteDescription(callContext.call.offer);
-    //
-    //
-    //     socket.on('ice-candidate', async (data) => {
-    //         console.log("adding candidate")
-    //         await connection.current.addIceCandidate(new RTCIceCandidate(data));
-    //     });
-    //
-    //     connection.current.onicecandidate = event => {
-    //         console.log("onicecandidate")
-    //         if (event.candidate) {
-    //             console.log("sending candidate from receiver to " + callContext.call.from)
-    //             socket.emit('ice-candidate', {to: callContext.call.from, message: event.candidate});
-    //         }
-    //     };
-    //
-    //     // Get local media stream
-    //     const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
-    //     console.log("local stream");
-    //     console.log(stream);
-    //     console.log(stream.getTracks());
-    //     stream.getTracks().forEach(track => connection.current.addTrack(track, stream));
-    //     localStream.current = stream;
-    //
-    //     console.log("creating answer");
-    //     const answer = await connection.current.createAnswer();
-    //     console.log(answer);
-    //
-    //     console.log("setting local desc");
-    //     await connection.current.setLocalDescription(answer);
-    //     console.log(connection.current);
-    //
-    //     console.log("sending answer");
-    //     socket.emit("answerCall", {answer: answer, to: callContext.call.from});
-    //
-    //     callContext.setStatus(CallStatus.ON_CALL);
-    //
-    // }
 
     function turnOnCamera() {
         console.log("turn on camera")
