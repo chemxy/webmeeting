@@ -23,6 +23,7 @@ export default function DirectCallPage() {
     const [isCameraOpen, setCameraOpen] = useState(false);
 
     useEffect(() => {
+
         const webcamHeight = 540;
         const webcamWidth = 960;
         navigator.mediaDevices.getUserMedia({
@@ -154,7 +155,6 @@ export default function DirectCallPage() {
         await peerConnection.setLocalDescription(offer);
         // console.log(peerConnection);
 
-        setCallStatus("calling");
         callContext.setStatus(CallStatus.OUTGOING);
         // setLocalStream(stream);
 
@@ -243,7 +243,6 @@ export default function DirectCallPage() {
 
     function hangUpCall() {
         console.log("hanging up a call");
-        setCallStatus(true);
     }
 
     switch (callContext.status) {
