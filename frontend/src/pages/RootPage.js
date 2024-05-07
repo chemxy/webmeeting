@@ -96,7 +96,7 @@ export default function RootPage() {
     }
 
     return (
-        <div>
+        <div className="root-content">
             <div>
                 {/*e.preventDefault() to prevent from closing the dialog with ESC key*/}
                 <dialog ref={receivedCallModal} onCancel={e => e.preventDefault()}>

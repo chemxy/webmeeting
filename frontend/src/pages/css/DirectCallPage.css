@@ -1,16 +1,9 @@
-.camera-wrapper {
-    border: black solid 1px;
-}
-
-.input-call-id {
-    /*width: 50%;*/
-}
-
 .video-wrapper {
     border: green solid 1px;
-    border-radius: 26px;
-    width: 600px;
+    border-radius: 20px;
+    width: 720px;
     height: 320px;
+    background-color: lightgrey;
     /*overflow: hidden;*/
 }
 
@@ -24,4 +17,15 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+#participant-list-wrapper,
+#chatbox-wrapper {
+    height: 100%;
+    max-width: 600px;
+    background-color: crimson;
+    border-radius: 20px;
+}
+
+#participant-list-wrapper {
+    background-color: bisque;
 }

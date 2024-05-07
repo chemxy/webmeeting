@@ -1,10 +1,9 @@
-import {useContext, useEffect, useRef, useState} from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import './css/DirectCallPage.css';
-import io from "socket.io-client"
-import {ConnectionContext} from "../store/ConnectionContext";
-import {CallStatus} from "../common/call-status";
-import {socket, SocketContext} from "../store/SocketContext";
-import {CallContext} from "../store/CallContext";
+import { ConnectionContext } from "../store/ConnectionContext";
+import { CallStatus } from "../common/call-status";
+import { socket, SocketContext } from "../store/SocketContext";
+import { CallContext } from "../store/CallContext";
 
 export default function DirectCallPage() {
 
@@ -16,16 +15,16 @@ export default function DirectCallPage() {
     const remoteVideo = useRef(null);
     const localStream = useRef(null);
     const remoteStream = useRef(null);
-    const connection = useRef(null);
 
-    const [errorMessage, setErrorMessage] = useState("");
     const [isCameraOpen, setCameraOpen] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
+    const [isChatOpen, setChatOpen] = useState(false);
+    const [isParticipantListOpen, setParticipantListOpen] = useState(false);
 
     useEffect(() => {
-        // callContext.setStatus(CallStatus.ON_CALL)
+        callContext.setStatus(CallStatus.ON_CALL)
+        const webcamWidth = 720;
         const webcamHeight = 320;
-        const webcamWidth = 600;
         navigator.mediaDevices.getUserMedia({
             audio: false,
             video: {
@@ -33,9 +32,6 @@ export default function DirectCallPage() {
                 height: {ideal: webcamHeight}
             },
             frameRate: 30,
-            aspectRatio: {
-                exact: webcamHeight / webcamWidth,
-            },
         }).then(
             s => {
                 // console.log(s);
@@ -67,16 +63,6 @@ export default function DirectCallPage() {
 
         return peerConnection;
     }
-
-    // async function openCamera() {
-    //     myVideo.current.srcObject = localStream.current;
-    //     remoteVideo.current.srcObject = remoteStream.current;
-    //     console.log(myVideo.current.srcObject);
-    //     console.log(myVideo.current.srcObject.getTracks());
-    //     console.log(remoteVideo.current.srcObject);
-    //     console.log(remoteVideo.current.srcObject.getTracks());
-    //     setCameraOpen(true);
-    // }
 
     async function callUser(event) {
         event.preventDefault();
@@ -173,8 +159,19 @@ export default function DirectCallPage() {
         setIsMuted(false);
     }
 
+    function toggleChat() {
+        // console.log(`toggleChat to ${!isChatOpen}`)
+        setChatOpen(!isChatOpen);
+    }
+
+    function toggleParticipantList() {
+        // console.log(`toggleParticipantList to ${!isParticipantListOpen}`)
+        setParticipantListOpen(!isParticipantListOpen);
+    }
+
     function hangUpCall() {
         console.log("hanging up a call");
+        //TODO
     }
 
     switch (callContext.status) {
@@ -198,8 +195,6 @@ export default function DirectCallPage() {
                             {isMuted && <button className="icon-button" onClick={unmute}>
                                 <span className="material-symbols-outlined">mic_off</span>
                             </button>}
-
-
                         </div>
                     </div>
                     <div className="w25">
@@ -223,20 +218,52 @@ export default function DirectCallPage() {
             );
         case CallStatus.ON_CALL:
             return (
-                <div>
-                    <div className="camera-wrapper">
-                        <div className="flex-row">
-                            <div className="video-wrapper">
-                                <video id="myVideo" autoPlay playsInline ref={myVideo}></video>
-                            </div>
-                            <div className="video-wrapper">
-                                <video id="remoteVideo" autoPlay playsInline ref={remoteVideo}></video>
+                <div className="d-flex flex-row">
+                    <div className="me-2">
+                        <div className="camera-wrapper">
+                            <div className="flex-row">
+                                <div className="video-wrapper mb-2">
+                                    <video id="myVideo" autoPlay playsInline ref={myVideo}></video>
+                                </div>
+                                <div className="video-wrapper mb-2">
+                                    <video id="remoteVideo" autoPlay playsInline ref={remoteVideo}></video>
+                                </div>
                             </div>
                         </div>
-                        <div>{errorMessage}</div>
+                        <div className="d-flex flex-row">
+                            <button onClick={toggleChat} className="icon-button me-1">
+                                <span className="material-symbols-outlined">chat</span>
+                            </button>
+                            <button onClick={toggleParticipantList} className="icon-button me-1">
+                                <span className="material-symbols-outlined">group</span>
+                            </button>
+                            {!isCameraOpen && <button className="icon-button me-1" onClick={turnOnCamera}>
+                                <span className="material-symbols-outlined">videocam_off</span>
+                            </button>}
+                            {isCameraOpen && <button className="icon-button me-1" onClick={turnOffCamera}>
+                                <span className="material-symbols-outlined">videocam</span>
+                            </button>}
+                            {!isMuted && <button className="icon-button me-1" onClick={mute}>
+                                <span className="material-symbols-outlined">mic</span>
+                            </button>}
+                            {isMuted && <button className="icon-button me-1" onClick={unmute}>
+                                <span className="material-symbols-outlined">mic_off</span>
+                            </button>}
+                            <button className="icon-button me-1">
+                                <span className="material-symbols-outlined">screen_share</span>
+                            </button>
+                            <button onClick={hangUpCall} className="icon-button bg-danger">
+                                <span className="material-symbols-outlined">call_end</span>
+                            </button>
+                        </div>
                     </div>
-                    <div>
-                        <button onClick={hangUpCall} className="text-capitalize">end call</button>
+                    <div className="d-flex flex-column w-100">
+                        {isChatOpen && <div id="chatbox-wrapper">
+
+                        </div>}
+                        {isParticipantListOpen && <div id="participant-list-wrapper">
+
+                        </div>}
                     </div>
                 </div>
             );

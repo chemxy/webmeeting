@@ -13,7 +13,7 @@ export default function Header() {
                 {myId.myId}
             </div>
             <div className="d-flex profile-picture-wrapper align-items-center justify-content-center rounded-circle">
-                <img className="profile-picture" src={myImage} alt="my profile picture"/>
+                <img className="profile-picture" src={myImage} alt="my profile"/>
             </div>
         </div>
     )

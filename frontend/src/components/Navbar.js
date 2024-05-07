@@ -28,7 +28,7 @@ export default function Navbar() {
                     </li>
                     <li className="nav-item mt-3">
                         <NavLink to="/2" className="text-capitalize nav-NavLink">
-                            <span className="material-symbols-outlined fs-1">group</span>
+                            <span className="material-symbols-outlined fs-1">person</span>
                         </NavLink>
                     </li>
                     <li className="nav-item mt-3">
