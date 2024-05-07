@@ -17,12 +17,12 @@ export default function DirectCallPage() {
     const remoteStream = useRef(null);
 
     const [isCameraOpen, setCameraOpen] = useState(false);
-    const [isMuted, setIsMuted] = useState(false);
+    const [isMuted, setIsMuted] = useState(true);
     const [isChatOpen, setChatOpen] = useState(false);
     const [isParticipantListOpen, setParticipantListOpen] = useState(false);
 
     useEffect(() => {
-        callContext.setStatus(CallStatus.ON_CALL)
+        // callContext.setStatus(CallStatus.ON_CALL)
         const webcamWidth = 720;
         const webcamHeight = 320;
         navigator.mediaDevices.getUserMedia({
@@ -171,7 +171,8 @@ export default function DirectCallPage() {
 
     function hangUpCall() {
         console.log("hanging up a call");
-        //TODO
+        // connectionContext.connection.close();
+        callContext.setStatus(CallStatus.END);
     }
 
     switch (callContext.status) {
@@ -179,11 +180,11 @@ export default function DirectCallPage() {
             return (
                 <div className="d-flex flex-row">
                     <div className="w-75">
-                        <div className="video-wrapper">
+                        <div className="video-wrapper mb-2">
                             <video id="myVideo" autoPlay playsInline ref={myVideo}></video>
                         </div>
                         <div className="d-flex flex-row">
-                            {!isCameraOpen && <button className="icon-button" onClick={turnOnCamera}>
+                            {!isCameraOpen && <button className="icon-button me-1" onClick={turnOnCamera}>
                                 <span className="material-symbols-outlined">videocam_off</span>
                             </button>}
                             {isCameraOpen && <button className="icon-button" onClick={turnOffCamera}>
@@ -275,6 +276,13 @@ export default function DirectCallPage() {
             return (
                 <div>
                     calling: {callContext.call.to}
+                </div>
+            )
+        case CallStatus.END:
+            return (
+                <div>
+                    Call has ended. <button onClick={() => callContext.setStatus(CallStatus.NEW)}>Return to home
+                    screen</button>
                 </div>
             )
     }
