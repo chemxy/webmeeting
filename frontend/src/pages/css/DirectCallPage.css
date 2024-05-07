@@ -22,10 +22,6 @@
 #chatbox-wrapper {
     height: 100%;
     max-width: 600px;
-    background-color: crimson;
     border-radius: 20px;
-}
-
-#participant-list-wrapper {
-    background-color: bisque;
+    border: gray 1px solid;
 }

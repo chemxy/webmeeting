@@ -218,7 +218,7 @@ export default function DirectCallPage() {
             );
         case CallStatus.ON_CALL:
             return (
-                <div className="d-flex flex-row">
+                <div className="d-flex flex-row mb-4">
                     <div className="me-2">
                         <div className="camera-wrapper">
                             <div className="flex-row">
@@ -230,7 +230,7 @@ export default function DirectCallPage() {
                                 </div>
                             </div>
                         </div>
-                        <div className="d-flex flex-row">
+                        <div className="d-flex flex-row justify-content-center pe-5">
                             <button onClick={toggleChat} className="icon-button me-1">
                                 <span className="material-symbols-outlined">chat</span>
                             </button>
@@ -258,11 +258,15 @@ export default function DirectCallPage() {
                         </div>
                     </div>
                     <div className="d-flex flex-column w-100">
-                        {isChatOpen && <div id="chatbox-wrapper">
-
+                        {isChatOpen && <div id="chatbox-wrapper" className="mb-2">
+                            <div className="text-center">
+                                <h3>Chat History</h3>
+                            </div>
                         </div>}
                         {isParticipantListOpen && <div id="participant-list-wrapper">
-
+                            <div className="text-center">
+                                <h3>Participants</h3>
+                            </div>
                         </div>}
                     </div>
                 </div>
