@@ -7,7 +7,7 @@ import {CallContext} from "../store/CallContext";
 
 export default function DirectCallPage() {
 
-    const idContext = useContext(SocketContext);
+    const socketContext = useContext(SocketContext);
     const callContext = useContext(CallContext);
     const connectionContext = useContext(ConnectionContext);
 
@@ -109,7 +109,7 @@ export default function DirectCallPage() {
         socket.emit("callUser", {
             userToCall: toUser,
             offer: offer,
-            from: idContext.myId,
+            from: socketContext.myId,
         })
 
         console.log("setting local desc");
@@ -132,7 +132,7 @@ export default function DirectCallPage() {
         })
 
         callContext.setCall({
-            me: idContext.myId,
+            me: socketContext.myId,
             offer: offer,
             remote: toUser,
         });
