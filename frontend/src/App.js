@@ -57,6 +57,25 @@ function App() {
         })
     }, []);
 
+    useEffect(() => {
+        // callContext.setStatus(CallStatus.ON_CALL)
+        const webcamWidth = 720;
+        const webcamHeight = 320;
+        navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: {
+                width: {ideal: webcamWidth},
+                height: {ideal: webcamHeight}
+            },
+            frameRate: 30,
+        }).then(
+            s => {
+                // console.log(s);
+                setLocalStream(s);
+            }
+        );
+    }, []);
+
     function toggleTheme() {
         setTheme(theme === 'light' ? 'dark' : 'light')
     }

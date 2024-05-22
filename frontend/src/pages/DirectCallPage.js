@@ -20,26 +20,6 @@ export default function DirectCallPage() {
     const [isParticipantListOpen, setParticipantListOpen] = useState(false);
 
     useEffect(() => {
-        // callContext.setStatus(CallStatus.ON_CALL)
-        const webcamWidth = 720;
-        const webcamHeight = 320;
-        navigator.mediaDevices.getUserMedia({
-            audio: true,
-            video: {
-                width: {ideal: webcamWidth},
-                height: {ideal: webcamHeight}
-            },
-            frameRate: 30,
-        }).then(
-            s => {
-                // console.log(s);
-                connectionContext.setLocalStream(s);
-                console.log(connectionContext.localStream)
-            }
-        );
-    }, []);
-
-    useEffect(() => {
         if (callContext.status === CallStatus.ON_CALL) {
             socket.on('open-remote-camera', data => {
                 console.log("turning on remote camera")
@@ -51,8 +31,16 @@ export default function DirectCallPage() {
                 console.log("turning off remote camera")
                 remoteVideo.current.srcObject = null;
             })
+
+            socket.on('end-call', data => {
+                console.log("ending call")
+                connectionContext.connection.close();
+                myVideo.current.srcObject = null;
+                remoteVideo.current.srcObject = null;
+                callContext.setStatus(CallStatus.END);
+            })
         }
-    }, );
+    },);
 
     // Function to create an RTCPeerConnection object
     function createPeerConnection() {
@@ -147,7 +135,7 @@ export default function DirectCallPage() {
             me: idContext.myId,
             offer: offer,
             remote: toUser,
-        })
+        });
     }
 
     function turnOnLocalCamera() {
@@ -186,7 +174,10 @@ export default function DirectCallPage() {
 
     function hangUpCall() {
         console.log("hanging up a call");
-        // connectionContext.connection.close();
+        socket.emit('end-call', {to: callContext.call.remote});
+        connectionContext.connection.close();
+        myVideo.current.srcObject = null;
+        remoteVideo.current.srcObject = null;
         callContext.setStatus(CallStatus.END);
     }
 

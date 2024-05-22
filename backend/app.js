@@ -44,6 +44,11 @@ io.on("connection", (socket) => {
         console.log("sending close camera to " + data.to);
         socket.to(data.to).emit('close-remote-camera');
     })
+
+    socket.on('end-call', data => {
+        console.log("sending end call to " + data.to);
+        socket.to(data.to).emit('end-call');
+    })
 })
 
 server.listen(5000, () => console.log("server is running on port 5000"))
