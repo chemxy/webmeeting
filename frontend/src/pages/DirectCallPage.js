@@ -1,9 +1,9 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import {useContext, useEffect, useRef, useState} from "react";
 import './css/DirectCallPage.css';
-import { ConnectionContext } from "../store/ConnectionContext";
-import { CallStatus } from "../common/call-status";
-import { socket, SocketContext } from "../store/SocketContext";
-import { CallContext } from "../store/CallContext";
+import {ConnectionContext} from "../store/ConnectionContext";
+import {CallStatus} from "../common/call-status";
+import {socket, SocketContext} from "../store/SocketContext";
+import {CallContext} from "../store/CallContext";
 
 export default function DirectCallPage() {
 
@@ -13,8 +13,6 @@ export default function DirectCallPage() {
 
     const myVideo = useRef(null);
     const remoteVideo = useRef(null);
-    const localStream = useRef(null);
-    const remoteStream = useRef(null);
 
     const [isCameraOpen, setCameraOpen] = useState(false);
     const [isMuted, setIsMuted] = useState(true);
@@ -26,7 +24,7 @@ export default function DirectCallPage() {
         const webcamWidth = 720;
         const webcamHeight = 320;
         navigator.mediaDevices.getUserMedia({
-            audio: false,
+            audio: true,
             video: {
                 width: {ideal: webcamWidth},
                 height: {ideal: webcamHeight}
@@ -39,8 +37,22 @@ export default function DirectCallPage() {
                 console.log(connectionContext.localStream)
             }
         );
-
     }, []);
+
+    useEffect(() => {
+        if (callContext.status === CallStatus.ON_CALL) {
+            socket.on('open-remote-camera', data => {
+                console.log("turning on remote camera")
+                console.log(connectionContext.remoteStream)
+                remoteVideo.current.srcObject = connectionContext.remoteStream;
+            })
+
+            socket.on('close-remote-camera', data => {
+                console.log("turning off remote camera")
+                remoteVideo.current.srcObject = null;
+            })
+        }
+    }, );
 
     // Function to create an RTCPeerConnection object
     function createPeerConnection() {
@@ -56,9 +68,11 @@ export default function DirectCallPage() {
             console.log("remote stream");
             console.log(e);
             // setRemoteStream(e.streams[0]);
-            remoteStream.current = e.streams[0];
-            console.log(remoteStream.current);
-            console.log(remoteStream.current.getTracks());
+            // remoteStream.current = e.streams[0];
+            connectionContext.setRemoteStream(e.streams[0]);
+            console.log(connectionContext.remoteStream);
+            // console.log(remoteStream.current);
+            // console.log(remoteStream.current.getTracks());
         };
 
         return peerConnection;
@@ -91,11 +105,12 @@ export default function DirectCallPage() {
         // Get local media stream
         // const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
         const stream = connectionContext.localStream;
-        console.log("local stream");
-        console.log(stream);
-        console.log(stream.getTracks());
+        // console.log("local stream");
+        // console.log(stream);
+        // console.log(stream.getTracks());
         stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
-        localStream.current = stream;
+        // localStream.current = stream;
+        connectionContext.setLocalStream(stream);
 
         // Create offer
         console.log("creating offer");
@@ -119,34 +134,34 @@ export default function DirectCallPage() {
         //wait for the other peer to accept the call
         socket.on("callAccepted", (data) => {
 
-            // openCamera(peerConnection);
-            // myVideo.current.srcObject = localStream;
             console.log("call accepted")
             console.log(data.answer);
             console.log("setting remote desc");
             peerConnection.setRemoteDescription(data.answer);
 
-            // setConnetion(peerConnection);
+            connectionContext.setConnection(peerConnection);
             callContext.setStatus(CallStatus.ON_CALL);
         })
 
         callContext.setCall({
-            from: idContext.myId,
+            me: idContext.myId,
             offer: offer,
-            to: toUser,
+            remote: toUser,
         })
     }
 
-    function turnOnCamera() {
+    function turnOnLocalCamera() {
         console.log("turn on camera")
         myVideo.current.srcObject = connectionContext.localStream;
-        setCameraOpen(true)
+        setCameraOpen(true);
+        socket.emit('open-remote-camera', {to: callContext.call.remote});
     }
 
-    function turnOffCamera() {
+    function turnOffLocalCamera() {
         console.log("turn off camera")
         myVideo.current.srcObject = null;
-        setCameraOpen(false)
+        setCameraOpen(false);
+        socket.emit('close-remote-camera', {to: callContext.call.remote});
     }
 
     function mute() {
@@ -184,10 +199,10 @@ export default function DirectCallPage() {
                             <video id="myVideo" autoPlay playsInline ref={myVideo}></video>
                         </div>
                         <div className="d-flex flex-row">
-                            {!isCameraOpen && <button className="icon-button me-1" onClick={turnOnCamera}>
+                            {!isCameraOpen && <button className="icon-button me-1" onClick={turnOnLocalCamera}>
                                 <span className="material-symbols-outlined">videocam_off</span>
                             </button>}
-                            {isCameraOpen && <button className="icon-button" onClick={turnOffCamera}>
+                            {isCameraOpen && <button className="icon-button" onClick={turnOffLocalCamera}>
                                 <span className="material-symbols-outlined">videocam</span>
                             </button>}
                             {!isMuted && <button className="icon-button" onClick={mute}>
@@ -238,10 +253,10 @@ export default function DirectCallPage() {
                             <button onClick={toggleParticipantList} className="icon-button me-1">
                                 <span className="material-symbols-outlined">group</span>
                             </button>
-                            {!isCameraOpen && <button className="icon-button me-1" onClick={turnOnCamera}>
+                            {!isCameraOpen && <button className="icon-button me-1" onClick={turnOnLocalCamera}>
                                 <span className="material-symbols-outlined">videocam_off</span>
                             </button>}
-                            {isCameraOpen && <button className="icon-button me-1" onClick={turnOffCamera}>
+                            {isCameraOpen && <button className="icon-button me-1" onClick={turnOffLocalCamera}>
                                 <span className="material-symbols-outlined">videocam</span>
                             </button>}
                             {!isMuted && <button className="icon-button me-1" onClick={mute}>
@@ -275,7 +290,7 @@ export default function DirectCallPage() {
         case CallStatus.OUTGOING:
             return (
                 <div>
-                    calling: {callContext.call.to}
+                    calling: {callContext.call.remote}
                 </div>
             )
         case CallStatus.END:

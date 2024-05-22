@@ -42,7 +42,7 @@ export default function RootPage() {
             console.log(e);
             // setRemoteStream(e.streams[0]);
             connectionContext.setRemoteStream(e.streams[0]);
-            // console.log(remoteStream);
+            console.log(connectionContext.remoteStream);
             // console.log(remoteStream.getTracks());
         };
 
@@ -65,16 +65,17 @@ export default function RootPage() {
         peerConnection.onicecandidate = event => {
             console.log("onicecandidate")
             if (event.candidate) {
-                console.log("sending candidate from receiver to " + callContext.call.from)
-                socket.emit('ice-candidate', {to: callContext.call.from, message: event.candidate});
+                console.log("sending candidate from receiver to " + callContext.call.remote)
+                socket.emit('ice-candidate', {to: callContext.call.remote, message: event.candidate});
             }
         };
 
         // Get local media stream
-        const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
-        console.log("local stream");
+        // const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: true});
+        const stream = connectionContext.localStream;
+        // console.log("local stream");
         console.log(stream);
-        console.log(stream.getTracks());
+        // console.log(stream.getTracks());
         stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
         connectionContext.setLocalStream(stream);
 
@@ -87,7 +88,7 @@ export default function RootPage() {
         console.log(peerConnection);
 
         console.log("sending answer");
-        socket.emit("answerCall", {answer: answer, to: callContext.call.from});
+        socket.emit("answerCall", {answer: answer, to: callContext.call.remote});
 
         connectionContext.setConnection(peerConnection);
         receivedCallModal.current.close();
@@ -100,7 +101,7 @@ export default function RootPage() {
             <div>
                 {/*e.preventDefault() to prevent from closing the dialog with ESC key*/}
                 <dialog ref={receivedCallModal} onCancel={e => e.preventDefault()}>
-                    <p>You have a call from {callContext.call.from}</p>
+                    <p>You have a call from {callContext.call.remote}</p>
                     <button onClick={answerCall}>Accept</button>
                     <button onClick={rejectCall}>Reject</button>
                 </dialog>

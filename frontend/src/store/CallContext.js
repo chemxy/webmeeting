@@ -3,8 +3,8 @@ import {createContext} from "react";
 export const CallContext = createContext({
     status: "",
     call: {
-        from: "",
-        to: "",
+        me: "",
+        remote: "",
         offer: null
     },
     setStatus: () => {

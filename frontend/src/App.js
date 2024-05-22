@@ -30,8 +30,8 @@ function App() {
     const [myId, setMyId] = useState("");
     const [callStatus, setCallStatus] = useState(CallStatus.NEW); //new, incoming, calling, on, end,
     const [call, setCall] = useState({
-        from: "",
-        to: "",
+        me: "",
+        remote: "",
         offer: null
     });
 
@@ -44,20 +44,17 @@ function App() {
     }, []);
 
     useEffect(() => {
-        // if(callStatus === CallStatus.NEW){
         socket.on("receiveCall", async (data) => {
             console.log(`receiving a call from ${data.from}`);
             // console.log(data.offer);
             setCall({
-                from: data.from,
+                remote: data.from,
                 offer: data.offer,
-                to: myId
+                me: myId
             });
 
             setCallStatus(CallStatus.INCOMING);
         })
-        // }
-
     }, []);
 
     function toggleTheme() {

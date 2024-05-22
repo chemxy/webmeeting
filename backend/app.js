@@ -34,6 +34,16 @@ io.on("connection", (socket) => {
         // console.log(data);
         socket.to(data.to).emit('ice-candidate', data.message);
     });
+
+    socket.on('open-remote-camera', data => {
+        console.log("sending open camera to " + data.to);
+        socket.to(data.to).emit('open-remote-camera');
+    })
+
+    socket.on('close-remote-camera', data => {
+        console.log("sending close camera to " + data.to);
+        socket.to(data.to).emit('close-remote-camera');
+    })
 })
 
 server.listen(5000, () => console.log("server is running on port 5000"))
